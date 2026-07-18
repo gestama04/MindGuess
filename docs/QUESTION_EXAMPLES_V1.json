@@ -1,0 +1,66 @@
+[
+  {
+    "id": "alive_yes",
+    "source": "stored",
+    "attribute": "alive",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa está viva?"
+  },
+  {
+    "id": "birth_continent_europe",
+    "source": "derived",
+    "attribute": "birthContinent",
+    "operator": "equals",
+    "expectedValue": "europe",
+    "canonicalText": "Esta pessoa nasceu na Europa?"
+  },
+  {
+    "id": "profession_footballer",
+    "source": "stored",
+    "attribute": "professions",
+    "operator": "contains",
+    "expectedValue": "footballer",
+    "canonicalText": "Esta pessoa é ou foi futebolista profissional?"
+  },
+  {
+    "id": "profession_actor",
+    "source": "stored",
+    "attribute": "professions",
+    "operator": "contains",
+    "expectedValue": "actor",
+    "canonicalText": "Esta pessoa trabalha ou trabalhou como ator ou atriz?"
+  },
+  {
+    "id": "public_area_music",
+    "source": "stored",
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "music",
+    "canonicalText": "A fama desta pessoa vem principalmente da música?"
+  },
+  {
+    "id": "associated_with_portugal",
+    "source": "stored",
+    "attribute": "associatedCountries",
+    "operator": "contains",
+    "expectedValue": "portugal",
+    "canonicalText": "Esta pessoa tem uma associação pública forte a Portugal?"
+  },
+  {
+    "id": "held_political_office",
+    "source": "stored",
+    "attribute": "heldPoliticalOffice",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa ocupou um cargo político?"
+  },
+  {
+    "id": "won_olympic_medal",
+    "source": "stored",
+    "attribute": "wonOlympicMedal",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa ganhou uma medalha olímpica?"
+  }
+]
