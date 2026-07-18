@@ -17,6 +17,27 @@ export const GenderSchema = z.enum([
   "other",
 ]);
 
+export const CountrySchema = z.enum([
+  "argentina",
+  "australia",
+  "brazil",
+  "canada",
+  "france",
+  "germany",
+  "india",
+  "ireland",
+  "italy",
+  "japan",
+  "portugal",
+  "south_africa",
+  "south_korea",
+  "spain",
+  "sweden",
+  "united_kingdom",
+  "united_states",
+  "other",
+]);
+
 export const ContinentSchema = z.enum([
   "africa",
   "asia",
@@ -24,17 +45,37 @@ export const ContinentSchema = z.enum([
   "north_america",
   "south_america",
   "oceania",
+  "unknown",
+]);
+
+export const PrimaryLanguageSchema = z.enum([
+  "arabic",
+  "chinese",
+  "english",
+  "french",
+  "german",
+  "hindi",
+  "italian",
+  "japanese",
+  "korean",
+  "portuguese",
+  "russian",
+  "spanish",
+  "other",
 ]);
 
 export const PublicAreaSchema = z.enum([
-  "entertainment",
-  "sports",
+  "acting",
+  "business",
+  "comedy",
+  "internet",
+  "journalism",
+  "literature",
+  "music",
   "politics",
   "science",
-  "business",
-  "literature",
-  "internet",
-  "religion",
+  "sports",
+  "television",
   "other",
 ]);
 
@@ -56,7 +97,7 @@ export const ProfessionSchema = z.enum([
   "other",
 ]);
 
-export const ActivePeriodSchema = z.enum([
+export const BecameFamousPeriodSchema = z.enum([
   "before_1900",
   "1900_1949",
   "1950_1979",
@@ -66,28 +107,50 @@ export const ActivePeriodSchema = z.enum([
   "2020_present",
 ]);
 
+export const SportSchema = z.enum([
+  "athletics",
+  "basketball",
+  "boxing",
+  "cycling",
+  "football",
+  "formula_one",
+  "golf",
+  "gymnastics",
+  "martial_arts",
+  "motorsport",
+  "rugby",
+  "swimming",
+  "tennis",
+  "other",
+]);
+
 export const PersonAttributesSchema = z.object({
   alive: z.boolean().nullable(),
   gender: GenderSchema.nullable(),
-  birthContinent: ContinentSchema.nullable(),
-  nationalities: z.array(z.string().min(2)).min(1),
+  birthCountry: CountrySchema.nullable(),
+  nationalities: z.array(CountrySchema).min(1),
+  primaryLanguage: PrimaryLanguageSchema.nullable(),
+  publicArea: PublicAreaSchema.nullable(),
   primaryProfession: ProfessionSchema.nullable(),
   professions: z.array(ProfessionSchema).min(1),
-  publicArea: PublicAreaSchema.nullable(),
-  activePeriod: ActivePeriodSchema.nullable(),
-  isActor: z.boolean().nullable(),
-  isAthlete: z.boolean().nullable(),
-  isBusinessperson: z.boolean().nullable(),
-  isContentCreator: z.boolean().nullable(),
-  isFootballer: z.boolean().nullable(),
-  isMusician: z.boolean().nullable(),
-  isPolitician: z.boolean().nullable(),
-  isScientist: z.boolean().nullable(),
-  isSinger: z.boolean().nullable(),
-  isWriter: z.boolean().nullable(),
-  hasWonMajorInternationalAward: z.boolean().nullable(),
+  becameFamousPeriod: BecameFamousPeriodSchema.nullable(),
   primarilyKnownInternationally: z.boolean().nullable(),
-});
+  associatedCountries: z.array(CountrySchema),
+  hasActedInFilmOrTelevision: z.boolean().nullable(),
+  hasReleasedMusic: z.boolean().nullable(),
+  hasPresentedTelevision: z.boolean().nullable(),
+  createsOnlineContent: z.boolean().nullable(),
+  hasPublishedBooks: z.boolean().nullable(),
+  sport: SportSchema.nullable(),
+  representedNationalTeam: z.boolean().nullable(),
+  heldPoliticalOffice: z.boolean().nullable(),
+  foundedOrLedMajorCompany: z.boolean().nullable(),
+  workedInScienceOrAcademia: z.boolean().nullable(),
+  wonMajorInternationalAward: z.boolean().nullable(),
+  wonOlympicMedal: z.boolean().nullable(),
+  wonWorldChampionship: z.boolean().nullable(),
+  hasGuinnessRecognizedRecord: z.boolean().nullable(),
+}).strict();
 
 export const FamousPersonSchema = z.object({
   id: z.string().uuid(),
@@ -105,17 +168,83 @@ export const FamousPersonSchema = z.object({
   attributes: PersonAttributesSchema,
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
-});
+}).strict();
 
 export type EntityStatus = z.infer<typeof EntityStatusSchema>;
 export type EntityCategory = z.infer<typeof EntityCategorySchema>;
 export type Gender = z.infer<typeof GenderSchema>;
+export type Country = z.infer<typeof CountrySchema>;
 export type Continent = z.infer<typeof ContinentSchema>;
+export type PrimaryLanguage = z.infer<typeof PrimaryLanguageSchema>;
 export type PublicArea = z.infer<typeof PublicAreaSchema>;
 export type Profession = z.infer<typeof ProfessionSchema>;
-export type ActivePeriod = z.infer<typeof ActivePeriodSchema>;
+export type BecameFamousPeriod = z.infer<typeof BecameFamousPeriodSchema>;
+export type Sport = z.infer<typeof SportSchema>;
 export type PersonAttributes = z.infer<typeof PersonAttributesSchema>;
 export type FamousPerson = z.infer<typeof FamousPersonSchema>;
+
+const COUNTRY_CONTINENT: Record<Country, Continent> = {
+  argentina: "south_america",
+  australia: "oceania",
+  brazil: "south_america",
+  canada: "north_america",
+  france: "europe",
+  germany: "europe",
+  india: "asia",
+  ireland: "europe",
+  italy: "europe",
+  japan: "asia",
+  portugal: "europe",
+  south_africa: "africa",
+  south_korea: "asia",
+  spain: "europe",
+  sweden: "europe",
+  united_kingdom: "europe",
+  united_states: "north_america",
+  other: "unknown",
+};
+
+export function getBirthContinent(
+  attributes: PersonAttributes,
+): Continent | null {
+  return attributes.birthCountry === null
+    ? null
+    : COUNTRY_CONTINENT[attributes.birthCountry];
+}
+
+export function hasProfession(
+  attributes: PersonAttributes,
+  profession: Profession,
+): boolean {
+  return attributes.professions.includes(profession);
+}
+
+export function isAssociatedWith(
+  attributes: PersonAttributes,
+  country: Country,
+): boolean {
+  return attributes.associatedCountries.includes(country);
+}
+
+export function isProfessionalAthlete(
+  attributes: PersonAttributes,
+): boolean {
+  return attributes.sport !== null || hasProfession(attributes, "athlete");
+}
+
+export function isPolitician(attributes: PersonAttributes): boolean {
+  return (
+    hasProfession(attributes, "politician") ||
+    attributes.heldPoliticalOffice === true
+  );
+}
+
+export function isScientist(attributes: PersonAttributes): boolean {
+  return (
+    hasProfession(attributes, "scientist") ||
+    attributes.workedInScienceOrAcademia === true
+  );
+}
 
 export function validateFamousPerson(input: unknown): FamousPerson {
   return FamousPersonSchema.parse(input);

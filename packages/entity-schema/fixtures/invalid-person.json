@@ -1,21 +1,26 @@
 {
-  "id": "isto-nao-e-um-uuid",
+  "id": "invalid-uuid",
   "name": "",
-  "slug": "Slug Invalido",
+  "slug": "Slug Inválido",
   "category": "animal",
   "status": "approved",
   "schemaVersion": 99,
   "aliases": [],
   "attributes": {
-    "alive": "sim",
-    "gender": "unknown_value",
-    "birthContinent": "atlantis",
+    "alive": "yes",
+    "gender": "unknown",
+    "birthCountry": "atlantis",
     "nationalities": [],
+    "primaryLanguage": "klingon",
+    "publicArea": "unknown_area",
     "primaryProfession": "astronaut",
     "professions": [],
-    "publicArea": "unknown_area",
-    "activePeriod": "future"
+    "becameFamousPeriod": "future",
+    "primarilyKnownInternationally": "maybe",
+    "associatedCountries": [
+      "moon"
+    ]
   },
-  "createdAt": "ontem",
-  "updatedAt": "amanha"
+  "createdAt": "yesterday",
+  "updatedAt": "tomorrow"
 }

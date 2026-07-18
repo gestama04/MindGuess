@@ -11,28 +11,35 @@
   "attributes": {
     "alive": true,
     "gender": "other",
-    "birthContinent": "europe",
+    "birthCountry": "portugal",
     "nationalities": [
-      "portuguese"
+      "portugal"
     ],
+    "primaryLanguage": "portuguese",
+    "publicArea": "literature",
     "primaryProfession": "writer",
     "professions": [
       "writer"
     ],
-    "publicArea": "literature",
-    "activePeriod": "2020_present",
-    "isActor": false,
-    "isAthlete": false,
-    "isBusinessperson": false,
-    "isContentCreator": false,
-    "isFootballer": false,
-    "isMusician": false,
-    "isPolitician": false,
-    "isScientist": false,
-    "isSinger": false,
-    "isWriter": true,
-    "hasWonMajorInternationalAward": false,
-    "primarilyKnownInternationally": false
+    "becameFamousPeriod": "2020_present",
+    "primarilyKnownInternationally": false,
+    "associatedCountries": [
+      "portugal"
+    ],
+    "hasActedInFilmOrTelevision": false,
+    "hasReleasedMusic": false,
+    "hasPresentedTelevision": false,
+    "createsOnlineContent": false,
+    "hasPublishedBooks": true,
+    "sport": null,
+    "representedNationalTeam": false,
+    "heldPoliticalOffice": false,
+    "foundedOrLedMajorCompany": false,
+    "workedInScienceOrAcademia": false,
+    "wonMajorInternationalAward": false,
+    "wonOlympicMedal": false,
+    "wonWorldChampionship": false,
+    "hasGuinnessRecognizedRecord": false
   },
   "createdAt": "2026-07-18T16:00:00.000Z",
   "updatedAt": "2026-07-18T16:00:00.000Z"
