@@ -1,0 +1,39 @@
+{
+  "id": "7d19ca24-6f83-4bda-bf8b-4ba44f854768",
+  "name": "Pessoa de Teste",
+  "slug": "pessoa-de-teste",
+  "category": "famous_person",
+  "status": "production",
+  "schemaVersion": 1,
+  "aliases": [
+    "Exemplo de Pessoa"
+  ],
+  "attributes": {
+    "alive": true,
+    "gender": "other",
+    "birthContinent": "europe",
+    "nationalities": [
+      "portuguese"
+    ],
+    "primaryProfession": "writer",
+    "professions": [
+      "writer"
+    ],
+    "publicArea": "literature",
+    "activePeriod": "2020_present",
+    "isActor": false,
+    "isAthlete": false,
+    "isBusinessperson": false,
+    "isContentCreator": false,
+    "isFootballer": false,
+    "isMusician": false,
+    "isPolitician": false,
+    "isScientist": false,
+    "isSinger": false,
+    "isWriter": true,
+    "hasWonMajorInternationalAward": false,
+    "primarilyKnownInternationally": false
+  },
+  "createdAt": "2026-07-18T16:00:00.000Z",
+  "updatedAt": "2026-07-18T16:00:00.000Z"
+}

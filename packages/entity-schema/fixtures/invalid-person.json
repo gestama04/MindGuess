@@ -1,0 +1,21 @@
+{
+  "id": "isto-nao-e-um-uuid",
+  "name": "",
+  "slug": "Slug Invalido",
+  "category": "animal",
+  "status": "approved",
+  "schemaVersion": 99,
+  "aliases": [],
+  "attributes": {
+    "alive": "sim",
+    "gender": "unknown_value",
+    "birthContinent": "atlantis",
+    "nationalities": [],
+    "primaryProfession": "astronaut",
+    "professions": [],
+    "publicArea": "unknown_area",
+    "activePeriod": "future"
+  },
+  "createdAt": "ontem",
+  "updatedAt": "amanha"
+}
