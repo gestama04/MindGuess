@@ -17,7 +17,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "npm run build && node --test tests/*.test.mjs"
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "demo:probability": "npm run build && node scripts/probability-demo.mjs"
   },
   "dependencies": {
     "@mindguess/entity-schema": "0.1.0"
