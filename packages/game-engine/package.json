@@ -18,7 +18,8 @@
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "npm run build && node --test tests/*.test.mjs",
-    "demo:probability": "npm run build && node scripts/probability-demo.mjs"
+    "demo:probability": "npm run build && node scripts/probability-demo.mjs",
+    "demo:game": "npm run build && node scripts/automatic-game-demo.mjs"
   },
   "dependencies": {
     "@mindguess/entity-schema": "0.1.0"
