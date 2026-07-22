@@ -269,3 +269,151 @@ export function selectNextQuestion(
 ): QuestionScore | null {
   return rankQuestions(candidates, questions, askedQuestionIds)[0] ?? null;
 }
+
+export type GameStatus = "active" | "ready_to_guess" | "finished";
+
+export interface GameTurn {
+  readonly turn: number;
+  readonly question: Question;
+  readonly answer: PlayerAnswer;
+  readonly topCandidateSlug: string;
+  readonly topCandidateProbability: number;
+}
+
+export interface GameSessionOptions {
+  readonly guessThreshold?: number;
+  readonly maxTurns?: number;
+}
+
+export interface GameSession {
+  readonly candidates: readonly CandidateProbability[];
+  readonly questions: readonly Question[];
+  readonly askedQuestionIds: readonly string[];
+  readonly history: readonly GameTurn[];
+  readonly turn: number;
+  readonly status: GameStatus;
+  readonly currentQuestion: Question | null;
+  readonly guessThreshold: number;
+  readonly maxTurns: number;
+  readonly finalGuess: CandidateProbability | null;
+}
+
+function validateSessionOptions(
+  options: GameSessionOptions,
+): Required<GameSessionOptions> {
+  const guessThreshold = options.guessThreshold ?? 0.85;
+  const maxTurns = options.maxTurns ?? 20;
+
+  if (
+    !Number.isFinite(guessThreshold) ||
+    guessThreshold <= 0 ||
+    guessThreshold > 1
+  ) {
+    throw new Error("guessThreshold tem de estar no intervalo ]0, 1].");
+  }
+
+  if (!Number.isInteger(maxTurns) || maxTurns <= 0) {
+    throw new Error("maxTurns tem de ser um inteiro positivo.");
+  }
+
+  return { guessThreshold, maxTurns };
+}
+
+export function createGameSession(
+  people: readonly FamousPerson[],
+  questions: readonly Question[],
+  options: GameSessionOptions = {},
+): GameSession {
+  if (questions.length === 0) {
+    throw new Error("Não é possível iniciar uma sessão sem perguntas.");
+  }
+
+  const { guessThreshold, maxTurns } = validateSessionOptions(options);
+  const candidates = createUniformDistribution(people);
+  const nextQuestion = selectNextQuestion(candidates, questions);
+
+  return {
+    candidates,
+    questions: [...questions],
+    askedQuestionIds: [],
+    history: [],
+    turn: 0,
+    status: nextQuestion === null ? "ready_to_guess" : "active",
+    currentQuestion: nextQuestion?.question ?? null,
+    guessThreshold,
+    maxTurns,
+    finalGuess: null,
+  };
+}
+
+export function answerCurrentQuestion(
+  session: GameSession,
+  answer: PlayerAnswer,
+): GameSession {
+  if (session.status !== "active" || session.currentQuestion === null) {
+    throw new Error("A sessão não aceita novas respostas.");
+  }
+
+  const turn = session.turn + 1;
+  const candidates = updateDistribution(
+    session.candidates,
+    session.currentQuestion,
+    answer,
+  );
+  const topCandidate = getTopCandidate(candidates);
+  const askedQuestionIds = [
+    ...session.askedQuestionIds,
+    session.currentQuestion.id,
+  ];
+  const history = [
+    ...session.history,
+    {
+      turn,
+      question: session.currentQuestion,
+      answer,
+      topCandidateSlug: topCandidate.person.slug,
+      topCandidateProbability: topCandidate.probability,
+    },
+  ];
+  const reachedThreshold =
+    topCandidate.probability >= session.guessThreshold;
+  const reachedTurnLimit = turn >= session.maxTurns;
+  const nextQuestion = reachedThreshold || reachedTurnLimit
+    ? null
+    : selectNextQuestion(
+        candidates,
+        session.questions,
+        new Set(askedQuestionIds),
+      );
+  const readyToGuess =
+    reachedThreshold || reachedTurnLimit || nextQuestion === null;
+
+  return {
+    ...session,
+    candidates,
+    askedQuestionIds,
+    history,
+    turn,
+    status: readyToGuess ? "ready_to_guess" : "active",
+    currentQuestion: readyToGuess ? null : nextQuestion.question,
+  };
+}
+
+export function getRecommendedGuess(
+  session: GameSession,
+): CandidateProbability {
+  return getTopCandidate(session.candidates);
+}
+
+export function finalizeGameSession(session: GameSession): GameSession {
+  if (session.status !== "ready_to_guess") {
+    throw new Error("A sessão ainda não está pronta para adivinhar.");
+  }
+
+  return {
+    ...session,
+    status: "finished",
+    currentQuestion: null,
+    finalGuess: getRecommendedGuess(session),
+  };
+}
