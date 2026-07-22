@@ -180,3 +180,92 @@ export function getTopCandidate(
 
   return topCandidate;
 }
+
+export interface QuestionScore {
+  readonly question: Question;
+  readonly informationGain: number;
+  readonly expectedEntropy: number;
+}
+
+export function calculateEntropy(
+  candidates: readonly CandidateProbability[],
+): number {
+  return candidates.reduce((entropy, candidate) => {
+    const probability = candidate.probability;
+    if (probability <= 0) {
+      return entropy;
+    }
+
+    return entropy - probability * Math.log2(probability);
+  }, 0);
+}
+
+export function scoreQuestion(
+  candidates: readonly CandidateProbability[],
+  question: Question,
+): QuestionScore {
+  const normalized = normalizeDistribution(candidates);
+  const currentEntropy = calculateEntropy(normalized);
+  const groups = new Map<EvaluationResult, CandidateProbability[]>();
+
+  for (const candidate of normalized) {
+    const result = evaluateQuestion(candidate.person, question);
+    const group = groups.get(result) ?? [];
+    group.push(candidate);
+    groups.set(result, group);
+  }
+
+  let expectedEntropy = 0;
+  for (const group of groups.values()) {
+    const groupProbability = group.reduce(
+      (sum, candidate) => sum + candidate.probability,
+      0,
+    );
+
+    if (groupProbability <= 0) {
+      continue;
+    }
+
+    const conditionalDistribution = group.map((candidate) => ({
+      person: candidate.person,
+      probability: candidate.probability / groupProbability,
+    }));
+
+    expectedEntropy +=
+      groupProbability * calculateEntropy(conditionalDistribution);
+  }
+
+  const rawInformationGain = currentEntropy - expectedEntropy;
+  const informationGain = Math.abs(rawInformationGain) < 1e-12
+    ? 0
+    : rawInformationGain;
+
+  return { question, informationGain, expectedEntropy };
+}
+
+export function rankQuestions(
+  candidates: readonly CandidateProbability[],
+  questions: readonly Question[],
+  askedQuestionIds: ReadonlySet<string> = new Set(),
+): QuestionScore[] {
+  return questions
+    .filter((question) => !askedQuestionIds.has(question.id))
+    .map((question) => scoreQuestion(candidates, question))
+    .filter((score) => score.informationGain > 1e-12)
+    .sort((left, right) => {
+      const gainDifference = right.informationGain - left.informationGain;
+      if (Math.abs(gainDifference) > 1e-12) {
+        return gainDifference;
+      }
+
+      return left.question.id.localeCompare(right.question.id);
+    });
+}
+
+export function selectNextQuestion(
+  candidates: readonly CandidateProbability[],
+  questions: readonly Question[],
+  askedQuestionIds: ReadonlySet<string> = new Set(),
+): QuestionScore | null {
+  return rankQuestions(candidates, questions, askedQuestionIds)[0] ?? null;
+}
