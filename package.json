@@ -5,6 +5,7 @@
   "description": "Motor de deducao deterministico com uma camada separada de personalidade.",
   "license": "UNLICENSED",
   "workspaces": [
+    "apps/*",
     "packages/*"
   ],
   "scripts": {

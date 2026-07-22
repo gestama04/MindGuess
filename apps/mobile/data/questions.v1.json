@@ -1,0 +1,74 @@
+[
+  {
+    "id": "alive-yes",
+    "source": "stored",
+    "attribute": "alive",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa está viva?"
+  },
+  {
+    "id": "birth-continent-europe",
+    "source": "derived",
+    "attribute": "birthContinent",
+    "operator": "equals",
+    "expectedValue": "europe",
+    "canonicalText": "Esta pessoa nasceu na Europa?"
+  },
+  {
+    "id": "birth-continent-south-america",
+    "source": "derived",
+    "attribute": "birthContinent",
+    "operator": "equals",
+    "expectedValue": "south_america",
+    "canonicalText": "Esta pessoa nasceu na América do Sul?"
+  },
+  {
+    "id": "profession-footballer",
+    "source": "stored",
+    "attribute": "professions",
+    "operator": "contains",
+    "expectedValue": "footballer",
+    "canonicalText": "Esta pessoa é ou foi futebolista profissional?"
+  },
+  {
+    "id": "profession-writer",
+    "source": "stored",
+    "attribute": "professions",
+    "operator": "contains",
+    "expectedValue": "writer",
+    "canonicalText": "Esta pessoa é conhecida por escrever livros ou obras publicadas?"
+  },
+  {
+    "id": "public-area-music",
+    "source": "stored",
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "music",
+    "canonicalText": "A fama desta pessoa vem principalmente da música?"
+  },
+  {
+    "id": "associated-with-portugal",
+    "source": "stored",
+    "attribute": "associatedCountries",
+    "operator": "contains",
+    "expectedValue": "portugal",
+    "canonicalText": "Esta pessoa tem uma associação pública forte a Portugal?"
+  },
+  {
+    "id": "won-olympic-medal",
+    "source": "stored",
+    "attribute": "wonOlympicMedal",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa ganhou uma medalha olímpica?"
+  },
+  {
+    "id": "guinness-record",
+    "source": "stored",
+    "attribute": "hasGuinnessRecognizedRecord",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa tem um recorde reconhecido pelo Guinness World Records?"
+  }
+]
