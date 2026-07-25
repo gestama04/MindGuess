@@ -21,23 +21,23 @@ async function loadData() {
   };
 }
 
-test("Ronaldo é futebolista", async () => {
+test("Ronaldo tem o desporto como área pública principal", async () => {
   const data = await loadData();
   assert.equal(
     evaluateQuestion(
       data.person("cristiano-ronaldo"),
-      data.question("profession-footballer"),
+      data.question("public-area-sports"),
     ),
     "true",
   );
 });
 
-test("Taylor Swift não é futebolista", async () => {
+test("Taylor Swift não tem o desporto como área pública principal", async () => {
   const data = await loadData();
   assert.equal(
     evaluateQuestion(
       data.person("taylor-swift"),
-      data.question("profession-footballer"),
+      data.question("public-area-sports"),
     ),
     "false",
   );
@@ -62,10 +62,10 @@ test("Messi nasceu na América do Sul", async () => {
   );
 });
 
-test("Rowling é escritora", async () => {
+test("Rowling tem a literatura como área pública principal", async () => {
   const data = await loadData();
   assert.equal(
-    evaluateQuestion(data.person("j-k-rowling"), data.question("profession-writer")),
+    evaluateQuestion(data.person("j-k-rowling"), data.question("public-area-literature")),
     "true",
   );
 });

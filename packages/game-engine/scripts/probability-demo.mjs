@@ -24,8 +24,8 @@ function printDistribution(title, candidates) {
 const rawPeople = await loadJson("../../../data/people/people.v1.json");
 const questions = await loadJson("../../../data/questions/questions.v1.json");
 const people = rawPeople.map((person) => FamousPersonSchema.parse(person));
-const question = questions.find((item) => item.id === "profession-footballer");
-if (question === undefined) throw new Error("A pergunta profession-footballer não foi encontrada.");
+const question = questions.find((item) => item.id === "public-area-sports");
+if (question === undefined) throw new Error("A pergunta public-area-sports não foi encontrada.");
 
 const initial = createUniformDistribution(people);
 printDistribution("Distribuição inicial", initial);
@@ -49,5 +49,5 @@ for (const slug of ["taylor-swift", "albert-einstein", "j-k-rowling"]) {
   }
 }
 console.log("\nVerificação matemática: aprovada");
-console.log("Os dois futebolistas ficaram com 42.86% cada.");
+console.log("As duas pessoas cuja área principal é o desporto ficaram com 42.86% cada.");
 console.log("Os restantes candidatos ficaram com 4.76% cada.");

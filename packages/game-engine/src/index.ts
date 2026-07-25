@@ -21,6 +21,7 @@ export interface Question {
   readonly operator: QuestionOperator;
   readonly expectedValue: QuestionValue;
   readonly canonicalText: string;
+  readonly exclusiveGroup?: string;
 }
 
 function evaluateValue(
@@ -243,13 +244,35 @@ export function scoreQuestion(
   return { question, informationGain, expectedEntropy };
 }
 
+export function isQuestionAvailable(
+  question: Question,
+  askedQuestionIds: ReadonlySet<string> = new Set(),
+  resolvedExclusiveGroups: ReadonlySet<string> = new Set(),
+): boolean {
+  if (askedQuestionIds.has(question.id)) {
+    return false;
+  }
+
+  return !(
+    question.exclusiveGroup !== undefined &&
+    resolvedExclusiveGroups.has(question.exclusiveGroup)
+  );
+}
+
 export function rankQuestions(
   candidates: readonly CandidateProbability[],
   questions: readonly Question[],
   askedQuestionIds: ReadonlySet<string> = new Set(),
+  resolvedExclusiveGroups: ReadonlySet<string> = new Set(),
 ): QuestionScore[] {
   return questions
-    .filter((question) => !askedQuestionIds.has(question.id))
+    .filter((question) =>
+      isQuestionAvailable(
+        question,
+        askedQuestionIds,
+        resolvedExclusiveGroups,
+      ),
+    )
     .map((question) => scoreQuestion(candidates, question))
     .filter((score) => score.informationGain > 1e-12)
     .sort((left, right) => {
@@ -266,8 +289,14 @@ export function selectNextQuestion(
   candidates: readonly CandidateProbability[],
   questions: readonly Question[],
   askedQuestionIds: ReadonlySet<string> = new Set(),
+  resolvedExclusiveGroups: ReadonlySet<string> = new Set(),
 ): QuestionScore | null {
-  return rankQuestions(candidates, questions, askedQuestionIds)[0] ?? null;
+  return rankQuestions(
+    candidates,
+    questions,
+    askedQuestionIds,
+    resolvedExclusiveGroups,
+  )[0] ?? null;
 }
 
 export type GameStatus = "active" | "ready_to_guess" | "finished";
@@ -289,6 +318,7 @@ export interface GameSession {
   readonly candidates: readonly CandidateProbability[];
   readonly questions: readonly Question[];
   readonly askedQuestionIds: readonly string[];
+  readonly resolvedExclusiveGroups: readonly string[];
   readonly history: readonly GameTurn[];
   readonly turn: number;
   readonly status: GameStatus;
@@ -336,6 +366,7 @@ export function createGameSession(
     candidates,
     questions: [...questions],
     askedQuestionIds: [],
+    resolvedExclusiveGroups: [],
     history: [],
     turn: 0,
     status: nextQuestion === null ? "ready_to_guess" : "active",
@@ -365,6 +396,15 @@ export function answerCurrentQuestion(
     ...session.askedQuestionIds,
     session.currentQuestion.id,
   ];
+  const resolvedExclusiveGroups =
+    answer === "yes" && session.currentQuestion.exclusiveGroup !== undefined
+      ? Array.from(
+          new Set([
+            ...session.resolvedExclusiveGroups,
+            session.currentQuestion.exclusiveGroup,
+          ]),
+        )
+      : [...session.resolvedExclusiveGroups];
   const history = [
     ...session.history,
     {
@@ -384,6 +424,7 @@ export function answerCurrentQuestion(
         candidates,
         session.questions,
         new Set(askedQuestionIds),
+        new Set(resolvedExclusiveGroups),
       );
   const readyToGuess =
     reachedThreshold || reachedTurnLimit || nextQuestion === null;
@@ -392,6 +433,7 @@ export function answerCurrentQuestion(
     ...session,
     candidates,
     askedQuestionIds,
+    resolvedExclusiveGroups,
     history,
     turn,
     status: readyToGuess ? "ready_to_guess" : "active",

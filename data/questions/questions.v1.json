@@ -13,7 +13,8 @@
     "attribute": "birthContinent",
     "operator": "equals",
     "expectedValue": "europe",
-    "canonicalText": "Esta pessoa nasceu na Europa?"
+    "canonicalText": "Esta pessoa nasceu na Europa?",
+    "exclusiveGroup": "birthContinent"
   },
   {
     "id": "birth-continent-south-america",
@@ -21,23 +22,26 @@
     "attribute": "birthContinent",
     "operator": "equals",
     "expectedValue": "south_america",
-    "canonicalText": "Esta pessoa nasceu na América do Sul?"
+    "canonicalText": "Esta pessoa nasceu na América do Sul?",
+    "exclusiveGroup": "birthContinent"
   },
   {
-    "id": "profession-footballer",
+    "id": "public-area-sports",
     "source": "stored",
-    "attribute": "professions",
-    "operator": "contains",
-    "expectedValue": "footballer",
-    "canonicalText": "Esta pessoa é ou foi futebolista profissional?"
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "sports",
+    "canonicalText": "A fama desta pessoa vem principalmente do desporto?",
+    "exclusiveGroup": "primaryPublicArea"
   },
   {
-    "id": "profession-writer",
+    "id": "public-area-literature",
     "source": "stored",
-    "attribute": "professions",
-    "operator": "contains",
-    "expectedValue": "writer",
-    "canonicalText": "Esta pessoa é conhecida por escrever livros ou obras publicadas?"
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "literature",
+    "canonicalText": "A fama desta pessoa vem principalmente da literatura?",
+    "exclusiveGroup": "primaryPublicArea"
   },
   {
     "id": "public-area-music",
@@ -45,7 +49,8 @@
     "attribute": "publicArea",
     "operator": "equals",
     "expectedValue": "music",
-    "canonicalText": "A fama desta pessoa vem principalmente da música?"
+    "canonicalText": "A fama desta pessoa vem principalmente da música?",
+    "exclusiveGroup": "primaryPublicArea"
   },
   {
     "id": "associated-with-portugal",

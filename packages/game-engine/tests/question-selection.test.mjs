@@ -42,7 +42,7 @@ test("uma pergunta útil tem ganho de informação positivo", async () => {
   const data = await loadData();
   const score = scoreQuestion(
     createUniformDistribution(data.people),
-    data.question("profession-footballer"),
+    data.question("public-area-sports"),
   );
   assert.ok(score.informationGain > 0);
   assert.ok(score.expectedEntropy < Math.log2(5));
@@ -90,25 +90,25 @@ test("empates usam o ID da pergunta de forma determinística", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
   const questionA = {
-    ...data.question("profession-footballer"),
-    id: "a-footballer",
+    ...data.question("public-area-sports"),
+    id: "a-sports",
   };
   const questionB = {
-    ...data.question("profession-footballer"),
-    id: "b-footballer",
+    ...data.question("public-area-sports"),
+    id: "b-sports",
   };
   const ranked = rankQuestions(initial, [questionB, questionA]);
-  assert.deepEqual(ranked.map((score) => score.question.id), ["a-footballer", "b-footballer"]);
+  assert.deepEqual(ranked.map((score) => score.question.id), ["a-sports", "b-sports"]);
 });
 
 test("a melhor pergunta pode mudar depois de uma resposta", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
-  const footballQuestion = data.question("profession-footballer");
-  const updated = updateDistribution(initial, footballQuestion, "no");
-  const next = selectNextQuestion(updated, data.questions, new Set([footballQuestion.id]));
+  const sportsQuestion = data.question("public-area-sports");
+  const updated = updateDistribution(initial, sportsQuestion, "no");
+  const next = selectNextQuestion(updated, data.questions, new Set([sportsQuestion.id]));
   assert.notEqual(next, null);
-  assert.notEqual(next.question.id, footballQuestion.id);
+  assert.notEqual(next.question.id, sportsQuestion.id);
   assert.ok(next.informationGain > 0);
 });
 

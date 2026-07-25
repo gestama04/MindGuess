@@ -39,10 +39,10 @@ test("a distribuição inicial é uniforme e soma 1", async () => {
   assert.ok(Math.abs(sumProbabilities(distribution) - 1) < 1e-12);
 });
 
-test("uma resposta yes aumenta os futebolistas", async () => {
+test("uma resposta yes aumenta as pessoas cuja área principal é o desporto", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
-  const updated = updateDistribution(initial, data.question("profession-footballer"), "yes");
+  const updated = updateDistribution(initial, data.question("public-area-sports"), "yes");
   const ranked = rankCandidates(updated);
 
   assert.deepEqual(
@@ -53,10 +53,10 @@ test("uma resposta yes aumenta os futebolistas", async () => {
   assert.ok(Math.abs(sumProbabilities(updated) - 1) < 1e-12);
 });
 
-test("uma resposta no reduz os futebolistas", async () => {
+test("uma resposta no reduz as pessoas cuja área principal é o desporto", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
-  const updated = updateDistribution(initial, data.question("profession-footballer"), "no");
+  const updated = updateDistribution(initial, data.question("public-area-sports"), "no");
   const bySlug = Object.fromEntries(
     updated.map((candidate) => [candidate.person.slug, candidate.probability]),
   );
@@ -68,8 +68,8 @@ test("uma resposta no reduz os futebolistas", async () => {
 test("maybe atualiza com menos força do que yes", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
-  const yes = updateDistribution(initial, data.question("profession-footballer"), "yes");
-  const maybe = updateDistribution(initial, data.question("profession-footballer"), "maybe");
+  const yes = updateDistribution(initial, data.question("public-area-sports"), "yes");
+  const maybe = updateDistribution(initial, data.question("public-area-sports"), "maybe");
   const yesTop = getTopCandidate(yes);
   const maybeTop = getTopCandidate(maybe);
 
@@ -80,7 +80,7 @@ test("maybe atualiza com menos força do que yes", async () => {
 test("unknown não altera a distribuição", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
-  const updated = updateDistribution(initial, data.question("profession-footballer"), "unknown");
+  const updated = updateDistribution(initial, data.question("public-area-sports"), "unknown");
 
   assert.deepEqual(updated, initial);
   assert.notEqual(updated, initial);
