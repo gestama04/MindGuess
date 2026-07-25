@@ -88,6 +88,20 @@ export default function HomeScreen() {
 
   const recommendation = session ? getRecommendedGuess(session) : null;
   const progress = session ? Math.min(session.turn / session.maxTurns, 1) : 0;
+  const guessCopy = session?.readyReason === "confidence_threshold"
+    ? {
+        eyebrow: "TENHO UMA SUSPEITA FORTE",
+        lead: "Estás a pensar em",
+      }
+    : session?.readyReason === "turn_limit"
+      ? {
+          eyebrow: "CHEGOU A HORA DE ARRISCAR",
+          lead: "A minha melhor hipótese é",
+        }
+      : {
+          eyebrow: "NÃO CONSEGUI TER CERTEZA",
+          lead: "A minha melhor hipótese é",
+        };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -167,8 +181,8 @@ export default function HomeScreen() {
             <View style={styles.guessHalo}>
               <Ionicons name="person" size={58} color={COLORS.text} />
             </View>
-            <Text style={styles.eyebrow}>TENHO UMA SUSPEITA</Text>
-            <Text style={styles.guessLead}>Estás a pensar em</Text>
+            <Text style={styles.eyebrow}>{guessCopy.eyebrow}</Text>
+            <Text style={styles.guessLead}>{guessCopy.lead}</Text>
             <Text style={styles.guessName}>{recommendation.person.name}?</Text>
             <View style={styles.confidencePill}>
               <Ionicons name="analytics" size={17} color={COLORS.cyan} />

@@ -301,6 +301,11 @@ export function selectNextQuestion(
 
 export type GameStatus = "active" | "ready_to_guess" | "finished";
 
+export type GameReadyReason =
+  | "confidence_threshold"
+  | "turn_limit"
+  | "no_useful_questions";
+
 export interface GameTurn {
   readonly turn: number;
   readonly question: Question;
@@ -322,6 +327,7 @@ export interface GameSession {
   readonly history: readonly GameTurn[];
   readonly turn: number;
   readonly status: GameStatus;
+  readonly readyReason: GameReadyReason | null;
   readonly currentQuestion: Question | null;
   readonly guessThreshold: number;
   readonly maxTurns: number;
@@ -370,6 +376,7 @@ export function createGameSession(
     history: [],
     turn: 0,
     status: nextQuestion === null ? "ready_to_guess" : "active",
+    readyReason: nextQuestion === null ? "no_useful_questions" : null,
     currentQuestion: nextQuestion?.question ?? null,
     guessThreshold,
     maxTurns,
@@ -428,6 +435,13 @@ export function answerCurrentQuestion(
       );
   const readyToGuess =
     reachedThreshold || reachedTurnLimit || nextQuestion === null;
+  const readyReason: GameReadyReason | null = reachedThreshold
+    ? "confidence_threshold"
+    : reachedTurnLimit
+      ? "turn_limit"
+      : nextQuestion === null
+        ? "no_useful_questions"
+        : null;
 
   return {
     ...session,
@@ -437,6 +451,7 @@ export function answerCurrentQuestion(
     history,
     turn,
     status: readyToGuess ? "ready_to_guess" : "active",
+    readyReason,
     currentQuestion: readyToGuess ? null : nextQuestion.question,
   };
 }
