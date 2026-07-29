@@ -9,7 +9,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FamousPersonSchema } from "@mindguess/entity-schema";
 import {
   answerCurrentQuestion,
   createGameSession,
@@ -19,8 +18,7 @@ import {
   type PlayerAnswer,
   type Question,
 } from "@mindguess/game-engine";
-import peopleData from "../data/people.v1.json";
-import questionsData from "../data/questions.v1.json";
+import { people, questions as gameQuestions } from "@mindguess/game-data";
 
 const COLORS = {
   background: "#07111F",
@@ -50,18 +48,15 @@ const ANSWERS: Array<{
 type Phase = "welcome" | "playing" | "guess" | "result";
 
 export default function HomeScreen() {
-  const people = useMemo(
-    () => peopleData.map((person) => FamousPersonSchema.parse(person)),
-    [],
-  );
-  const questions = questionsData as Question[];
+  const gamePeople = useMemo(() => people, []);
+  const questions = gameQuestions as unknown as Question[];
   const [phase, setPhase] = useState<Phase>("welcome");
   const [session, setSession] = useState<GameSession | null>(null);
   const [wasCorrect, setWasCorrect] = useState<boolean | null>(null);
 
   function startGame() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setSession(createGameSession(people, questions));
+    setSession(createGameSession(gamePeople, questions));
     setWasCorrect(null);
     setPhase("playing");
   }

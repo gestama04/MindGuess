@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { FamousPersonSchema } from "@mindguess/entity-schema";
+import { people, questions } from "@mindguess/game-data";
 import {
   answerCurrentQuestion,
   createGameSession,
@@ -9,14 +8,7 @@ import {
   getRecommendedGuess,
 } from "../dist/index.js";
 
-async function loadJson(relativeUrl) {
-  return JSON.parse(await readFile(new URL(relativeUrl, import.meta.url), "utf8"));
-}
-
 async function loadData() {
-  const people = (await loadJson("../../../data/people/people.v1.json"))
-    .map((person) => FamousPersonSchema.parse(person));
-  const questions = await loadJson("../../../data/questions/questions.v1.json");
   return { people, questions };
 }
 

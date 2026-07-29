@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
-    "@mindguess/entity-schema": "0.1.0",
+    "@mindguess/game-data": "0.1.0",
     "@mindguess/game-engine": "0.1.0",
     "@react-navigation/bottom-tabs": "^7.4.0",
     "@react-navigation/elements": "^2.6.3",

@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { FamousPersonSchema } from "@mindguess/entity-schema";
+import { people, questions } from "@mindguess/game-data";
 import {
   answerCurrentQuestion,
   createGameSession,
@@ -7,10 +6,6 @@ import {
   finalizeGameSession,
   getRecommendedGuess,
 } from "../dist/index.js";
-
-async function loadJson(relativeUrl) {
-  return JSON.parse(await readFile(new URL(relativeUrl, import.meta.url), "utf8"));
-}
 
 function evaluationToAnswer(evaluation) {
   if (evaluation === "true") return "yes";
@@ -47,9 +42,6 @@ function simulatePerson(secretPerson, people, questions) {
   };
 }
 
-const rawPeople = await loadJson("../../../data/people/people.v1.json");
-const questions = await loadJson("../../../data/questions/questions.v1.json");
-const people = rawPeople.map((person) => FamousPersonSchema.parse(person));
 const results = people.map((person) => simulatePerson(person, people, questions));
 
 console.log("MindGuess - simulador do dataset");

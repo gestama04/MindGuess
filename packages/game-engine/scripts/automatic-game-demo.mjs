@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { FamousPersonSchema } from "@mindguess/entity-schema";
+import { people, questions } from "@mindguess/game-data";
 import {
   answerCurrentQuestion,
   createGameSession,
@@ -8,10 +7,6 @@ import {
   getRecommendedGuess,
   rankCandidates,
 } from "../dist/index.js";
-
-async function loadJson(relativeUrl) {
-  return JSON.parse(await readFile(new URL(relativeUrl, import.meta.url), "utf8"));
-}
 
 function evaluationToAnswer(evaluation) {
   if (evaluation === "true") return "yes";
@@ -26,9 +21,6 @@ function printTopCandidates(session, limit = 3) {
   }
 }
 
-const rawPeople = await loadJson("../../../data/people/people.v1.json");
-const questions = await loadJson("../../../data/questions/questions.v1.json");
-const people = rawPeople.map((person) => FamousPersonSchema.parse(person));
 const secretPerson = people.find((person) => person.slug === "taylor-swift");
 
 if (secretPerson === undefined) {

@@ -1,14 +1,9 @@
-import { readFile } from "node:fs/promises";
-import { FamousPersonSchema } from "@mindguess/entity-schema";
+import { people, questions } from "@mindguess/game-data";
 import {
   createUniformDistribution,
   rankCandidates,
   updateDistribution,
 } from "../dist/index.js";
-
-async function loadJson(relativeUrl) {
-  return JSON.parse(await readFile(new URL(relativeUrl, import.meta.url), "utf8"));
-}
 
 function printDistribution(title, candidates) {
   console.log(`\n${title}`);
@@ -21,9 +16,6 @@ function printDistribution(title, candidates) {
   console.log(`${"Total".padEnd(20)} ${(total * 100).toFixed(2).padStart(6)}%`);
 }
 
-const rawPeople = await loadJson("../../../data/people/people.v1.json");
-const questions = await loadJson("../../../data/questions/questions.v1.json");
-const people = rawPeople.map((person) => FamousPersonSchema.parse(person));
 const question = questions.find((item) => item.id === "public-area-sports");
 if (question === undefined) throw new Error("A pergunta public-area-sports não foi encontrada.");
 

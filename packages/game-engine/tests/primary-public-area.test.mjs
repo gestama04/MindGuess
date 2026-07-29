@@ -1,19 +1,14 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { questions } from "@mindguess/game-data";
 import { isQuestionAvailable } from "../dist/index.js";
 
-async function loadQuestions() {
-  return JSON.parse(
-    await readFile(
-      new URL("../../../data/questions/questions.v1.json", import.meta.url),
-      "utf8",
-    ),
-  );
+function loadQuestions() {
+  return questions;
 }
 
 test("as áreas públicas principais partilham um grupo exclusivo", async () => {
-  const questions = await loadQuestions();
+  const questions = loadQuestions();
   const areaQuestions = questions.filter((question) =>
     question.id.startsWith("public-area-"),
   );
@@ -30,7 +25,7 @@ test("as áreas públicas principais partilham um grupo exclusivo", async () => 
 });
 
 test("desporto afirmativo bloqueia música e literatura", async () => {
-  const questions = await loadQuestions();
+  const questions = loadQuestions();
   const sports = questions.find((question) => question.id === "public-area-sports");
   const music = questions.find((question) => question.id === "public-area-music");
   const literature = questions.find((question) => question.id === "public-area-literature");
@@ -42,7 +37,7 @@ test("desporto afirmativo bloqueia música e literatura", async () => {
 });
 
 test("literatura afirmativa bloqueia música e desporto", async () => {
-  const questions = await loadQuestions();
+  const questions = loadQuestions();
   const literature = questions.find((question) => question.id === "public-area-literature");
   const music = questions.find((question) => question.id === "public-area-music");
   const sports = questions.find((question) => question.id === "public-area-sports");
@@ -54,7 +49,7 @@ test("literatura afirmativa bloqueia música e desporto", async () => {
 });
 
 test("uma resposta negativa mantém outras áreas disponíveis", async () => {
-  const questions = await loadQuestions();
+  const questions = loadQuestions();
   const sports = questions.find((question) => question.id === "public-area-sports");
   const music = questions.find((question) => question.id === "public-area-music");
 

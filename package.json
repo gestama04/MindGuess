@@ -10,10 +10,10 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test:workspaces && npm run test:data",
+    "typecheck": "npm run build && npm run typecheck --workspaces --if-present",
+    "test": "npm run build && npm run test:workspaces && npm run test:data",
     "test:workspaces": "npm run test --workspaces --if-present",
-    "test:data": "npm run build && node --test data/tests/*.test.mjs",
+    "test:data": "node --test data/tests/*.test.mjs",
     "validate:data": "npm run build && node data/scripts/validate-people.mjs",
     "clean": "npm run clean --workspaces --if-present"
   },
@@ -21,6 +21,7 @@
     "node": ">=22"
   },
   "devDependencies": {
+    "@mindguess/game-data": "0.1.0",
     "typescript": "5.9.2"
   }
 }

@@ -1,4 +1,6 @@
-[
+import { FamousPersonSchema } from "@mindguess/entity-schema";
+
+const RAW_PEOPLE = [
   {
     "id": "5d7cabd2-e37c-4f8b-8c3a-c6e20aeb8d46",
     "name": "Cristiano Ronaldo",
@@ -247,4 +249,91 @@
     "createdAt": "2026-07-19T09:30:00.000Z",
     "updatedAt": "2026-07-19T09:30:00.000Z"
   }
-]
+] as const;
+
+export const questions = [
+  {
+    "id": "alive-yes",
+    "source": "stored",
+    "attribute": "alive",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa está viva?"
+  },
+  {
+    "id": "birth-continent-europe",
+    "source": "derived",
+    "attribute": "birthContinent",
+    "operator": "equals",
+    "expectedValue": "europe",
+    "canonicalText": "Esta pessoa nasceu na Europa?",
+    "exclusiveGroup": "birthContinent"
+  },
+  {
+    "id": "birth-continent-south-america",
+    "source": "derived",
+    "attribute": "birthContinent",
+    "operator": "equals",
+    "expectedValue": "south_america",
+    "canonicalText": "Esta pessoa nasceu na América do Sul?",
+    "exclusiveGroup": "birthContinent"
+  },
+  {
+    "id": "public-area-sports",
+    "source": "stored",
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "sports",
+    "canonicalText": "A fama desta pessoa vem principalmente do desporto?",
+    "exclusiveGroup": "primaryPublicArea"
+  },
+  {
+    "id": "public-area-literature",
+    "source": "stored",
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "literature",
+    "canonicalText": "A fama desta pessoa vem principalmente da literatura?",
+    "exclusiveGroup": "primaryPublicArea"
+  },
+  {
+    "id": "public-area-music",
+    "source": "stored",
+    "attribute": "publicArea",
+    "operator": "equals",
+    "expectedValue": "music",
+    "canonicalText": "A fama desta pessoa vem principalmente da música?",
+    "exclusiveGroup": "primaryPublicArea"
+  },
+  {
+    "id": "associated-with-portugal",
+    "source": "stored",
+    "attribute": "associatedCountries",
+    "operator": "contains",
+    "expectedValue": "portugal",
+    "canonicalText": "Esta pessoa tem uma associação pública forte a Portugal?"
+  },
+  {
+    "id": "won-olympic-medal",
+    "source": "stored",
+    "attribute": "wonOlympicMedal",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa ganhou uma medalha olímpica?"
+  },
+  {
+    "id": "guinness-record",
+    "source": "stored",
+    "attribute": "hasGuinnessRecognizedRecord",
+    "operator": "equals",
+    "expectedValue": true,
+    "canonicalText": "Esta pessoa tem um recorde reconhecido pelo Guinness World Records?"
+  }
+] as const;
+
+export const people = RAW_PEOPLE.map((person) =>
+  FamousPersonSchema.parse(person),
+);
+
+export type GamePerson = (typeof people)[number];
+export type GameQuestion = (typeof questions)[number];
