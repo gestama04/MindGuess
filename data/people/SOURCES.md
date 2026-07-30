@@ -1,19 +1,20 @@
-# Fontes das primeiras cinco entidades
+# Fontes das pessoas famosas
 
-Consultadas em 19 de julho de 2026. Valores ambíguos usam `null`.
+## Lote inicial
 
-- Cristiano Ronaldo: Encyclopaedia Britannica; Guinness World Records.
-- Lionel Messi: Encyclopaedia Britannica; Guinness World Records.
-- Taylor Swift: Encyclopaedia Britannica.
-- Albert Einstein: NobelPrize.org.
-- J. K. Rowling: biografia oficial e Encyclopaedia Britannica.
+As fontes do lote inicial permanecem documentadas no repositório.
 
-URLs completas:
-https://www.britannica.com/biography/Cristiano-Ronaldo
-https://www.guinnessworldrecords.com/records/icons/cristiano-ronaldo-football-and-social-media-star
-https://www.britannica.com/biography/Lionel-Messi
-https://www.guinnessworldrecords.com/news/2022/12/messi-breaks-record-after-winning-world-cup-with-argentina-730036
-https://www.britannica.com/biography/Taylor-Swift
-https://www.nobelprize.org/prizes/physics/1921/einstein/biographical/
-https://www.jkrowling.com/about/
-https://www.britannica.com/biography/J-K-Rowling
+## Lote 2 - 30 de julho de 2026
+
+- Kylian Mbappé: https://www.realmadrid.com/en-US/football/first-team/players/kylian-mbappe
+- Kylian Mbappé (biografia): https://www.britannica.com/biography/Kylian-Mbappe
+- Adele: https://www.britannica.com/biography/Adele
+- Marie Curie: https://www.nobelprize.org/prizes/physics/1903/marie-curie/biographical/
+- Marie Curie (biografia): https://www.britannica.com/biography/Marie-Curie
+- Leonardo DiCaprio: https://www.britannica.com/biography/Leonardo-DiCaprio
+- Stephen King: https://stephenking.com/the-author/
+- Stephen King (biografia): https://www.britannica.com/biography/Stephen-King
+
+Notas:
+- `birthCountry: other` é usado para Marie Curie porque a versão 1 do schema ainda não inclui Polónia.
+- Os campos temporais representam o período de reconhecimento público inicial, não toda a carreira.

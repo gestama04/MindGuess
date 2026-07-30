@@ -21,7 +21,7 @@ test("uma sessão ativa começa sem razão de conclusão", async () => {
 test("atingir a confiança define confidence_threshold", async () => {
   const data = await loadData();
   const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 0.3,
+    guessThreshold: 0.11,
     maxTurns: 20,
   });
   const ready = answerCurrentQuestion(initial, "yes");
@@ -55,7 +55,7 @@ test("ficar sem perguntas úteis define no_useful_questions", async () => {
 test("a confiança tem prioridade sobre o limite de turnos", async () => {
   const data = await loadData();
   const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 0.3,
+    guessThreshold: 0.11,
     maxTurns: 1,
   });
   const ready = answerCurrentQuestion(initial, "yes");

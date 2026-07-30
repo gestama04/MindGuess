@@ -27,19 +27,39 @@ console.log("Resposta simulada: yes");
 const updated = updateDistribution(initial, question, "yes");
 printDistribution("Distribuição atualizada", updated);
 
-const bySlug = Object.fromEntries(updated.map((candidate) => [candidate.person.slug, candidate.probability]));
-const expectedFootballer = 3 / 7;
-const expectedOther = 1 / 21;
-for (const slug of ["cristiano-ronaldo", "lionel-messi"]) {
-  if (Math.abs(bySlug[slug] - expectedFootballer) > 1e-12) {
+const bySlug = Object.fromEntries(
+  updated.map((candidate) => [
+    candidate.person.slug,
+    candidate.probability,
+  ]),
+);
+
+const sportsSlugs = people
+  .filter((person) => person.attributes.publicArea === "sports")
+  .map((person) => person.slug);
+
+const otherSlugs = people
+  .filter((person) => person.attributes.publicArea !== "sports")
+  .map((person) => person.slug);
+
+const weightedTotal =
+  sportsSlugs.length * 0.9 +
+  otherSlugs.length * 0.1;
+
+const expectedSportsProbability = 0.9 / weightedTotal;
+const expectedOtherProbability = 0.1 / weightedTotal;
+
+for (const slug of sportsSlugs) {
+  if (Math.abs(bySlug[slug] - expectedSportsProbability) > 1e-12) {
     throw new Error(`Probabilidade inesperada para ${slug}.`);
   }
 }
-for (const slug of ["taylor-swift", "albert-einstein", "j-k-rowling"]) {
-  if (Math.abs(bySlug[slug] - expectedOther) > 1e-12) {
+
+for (const slug of otherSlugs) {
+  if (Math.abs(bySlug[slug] - expectedOtherProbability) > 1e-12) {
     throw new Error(`Probabilidade inesperada para ${slug}.`);
   }
 }
 console.log("\nVerificação matemática: aprovada");
-console.log("As duas pessoas cuja área principal é o desporto ficaram com 42.86% cada.");
-console.log("Os restantes candidatos ficaram com 4.76% cada.");
+console.log(`As ${sportsSlugs.length} pessoas cuja área principal é o desporto ficaram com ${(expectedSportsProbability * 100).toFixed(2)}% cada.`);
+console.log(`Os restantes candidatos ficaram com ${(expectedOtherProbability * 100).toFixed(2)}% cada.`);

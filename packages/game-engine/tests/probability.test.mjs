@@ -24,9 +24,9 @@ test("a distribuição inicial é uniforme e soma 1", async () => {
   const { people } = await loadData();
   const distribution = createUniformDistribution(people);
 
-  assert.equal(distribution.length, 5);
+  assert.equal(distribution.length, 10);
   for (const candidate of distribution) {
-    assert.ok(Math.abs(candidate.probability - 0.2) < 1e-12);
+    assert.ok(Math.abs(candidate.probability - 0.1) < 1e-12);
   }
   assert.ok(Math.abs(sumProbabilities(distribution) - 1) < 1e-12);
 });
@@ -38,10 +38,10 @@ test("uma resposta yes aumenta as pessoas cuja área principal é o desporto", a
   const ranked = rankCandidates(updated);
 
   assert.deepEqual(
-    ranked.slice(0, 2).map((candidate) => candidate.person.slug).sort(),
-    ["cristiano-ronaldo", "lionel-messi"],
+    ranked.slice(0, 3).map((candidate) => candidate.person.slug).sort(),
+    ["cristiano-ronaldo", "kylian-mbappe", "lionel-messi"],
   );
-  assert.ok(ranked[0].probability > 0.2);
+  assert.ok(ranked[0].probability > 0.1);
   assert.ok(Math.abs(sumProbabilities(updated) - 1) < 1e-12);
 });
 
@@ -66,7 +66,7 @@ test("maybe atualiza com menos força do que yes", async () => {
   const maybeTop = getTopCandidate(maybe);
 
   assert.ok(yesTop.probability > maybeTop.probability);
-  assert.ok(maybeTop.probability > 0.2);
+  assert.ok(maybeTop.probability > 0.1);
 });
 
 test("unknown não altera a distribuição", async () => {

@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { people } from "@mindguess/game-data";
 
-test("o dataset contém exatamente cinco entidades iniciais", () => {
-  assert.equal(people.length, 5);
+test("o dataset contém exatamente dez entidades", () => {
+  assert.equal(people.length, 10);
 });
 
 test("todas as entidades cumprem o FamousPersonSchema", () => {

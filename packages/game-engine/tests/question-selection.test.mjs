@@ -19,10 +19,10 @@ async function loadData() {
   };
 }
 
-test("a entropia de cinco candidatos uniformes é log2 de 5", async () => {
+test("a entropia de candidatos uniformes é log2 do total", async () => {
   const data = await loadData();
   const entropy = calculateEntropy(createUniformDistribution(data.people));
-  assert.ok(Math.abs(entropy - Math.log2(5)) < 1e-12);
+  assert.ok(Math.abs(entropy - Math.log2(data.people.length)) < 1e-12);
 });
 
 test("uma distribuição certa tem entropia zero", async () => {
@@ -37,7 +37,7 @@ test("uma pergunta útil tem ganho de informação positivo", async () => {
     data.question("public-area-sports"),
   );
   assert.ok(score.informationGain > 0);
-  assert.ok(score.expectedEntropy < Math.log2(5));
+  assert.ok(score.expectedEntropy < Math.log2(data.people.length));
 });
 
 test("uma pergunta que produz a mesma resposta para todos é ignorada", async () => {

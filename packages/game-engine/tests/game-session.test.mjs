@@ -19,7 +19,7 @@ test("cria uma sessão ativa com distribuição uniforme", async () => {
   assert.equal(session.turn, 0);
   assert.equal(session.history.length, 0);
   assert.notEqual(session.currentQuestion, null);
-  assert.ok(session.candidates.every((candidate) => Math.abs(candidate.probability - 0.2) < 1e-12));
+  assert.ok(session.candidates.every((candidate) => Math.abs(candidate.probability - 1 / data.people.length) < 1e-12));
 });
 
 test("regista uma resposta no histórico", async () => {
@@ -67,7 +67,7 @@ test("fica pronta para adivinhar ao atingir o limite de turnos", async () => {
 test("fica pronta para adivinhar ao atingir a confiança configurada", async () => {
   const data = await loadData();
   const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 0.3,
+    guessThreshold: 0.11,
     maxTurns: 20,
   });
   const updated = answerCurrentQuestion(initial, "yes");
@@ -79,7 +79,7 @@ test("devolve o candidato recomendado", async () => {
   const session = createGameSession(data.people, data.questions);
   const guess = getRecommendedGuess(session);
   assert.ok(data.people.some((person) => person.slug === guess.person.slug));
-  assert.equal(guess.probability, 0.2);
+  assert.equal(guess.probability, 1 / data.people.length);
 });
 
 test("finaliza a sessão com uma sugestão imutável", async () => {

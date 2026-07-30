@@ -15,7 +15,13 @@ test("as áreas públicas principais partilham um grupo exclusivo", async () => 
 
   assert.deepEqual(
     areaQuestions.map((question) => question.id).sort(),
-    ["public-area-literature", "public-area-music", "public-area-sports"],
+    [
+      "public-area-acting",
+      "public-area-literature",
+      "public-area-music",
+      "public-area-science",
+      "public-area-sports",
+    ],
   );
   assert.ok(
     areaQuestions.every(
