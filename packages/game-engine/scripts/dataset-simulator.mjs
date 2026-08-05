@@ -39,6 +39,8 @@ function simulatePerson(secretPerson, people, questions) {
     turns: session.turn,
     confidence: recommendation.probability,
     unknownAnswers,
+    readyReason: session.readyReason,
+    questionIds: session.history.map((turn) => turn.question.id),
   };
 }
 
@@ -64,12 +66,93 @@ const averageTurns = results.reduce((sum, result) => sum + result.turns, 0) / re
 const averageConfidence = results.reduce((sum, result) => sum + result.confidence, 0) / results.length;
 const totalUnknown = results.reduce((sum, result) => sum + result.unknownAnswers, 0);
 
+const questionUsage = new Map();
+const firstQuestionUsage = new Map();
+const pathUsage = new Map();
+const readyReasonUsage = new Map();
+
+for (const result of results) {
+  for (const questionId of result.questionIds) {
+    questionUsage.set(questionId, (questionUsage.get(questionId) ?? 0) + 1);
+  }
+
+  const firstQuestionId = result.questionIds[0];
+  if (firstQuestionId !== undefined) {
+    firstQuestionUsage.set(
+      firstQuestionId,
+      (firstQuestionUsage.get(firstQuestionId) ?? 0) + 1,
+    );
+  }
+
+  const path = result.questionIds.join(" -> ");
+  pathUsage.set(path, (pathUsage.get(path) ?? 0) + 1);
+  readyReasonUsage.set(
+    result.readyReason,
+    (readyReasonUsage.get(result.readyReason) ?? 0) + 1,
+  );
+}
+
+function sortUsage(usage) {
+  return [...usage.entries()].sort((left, right) => {
+    const countDifference = right[1] - left[1];
+    return countDifference !== 0
+      ? countDifference
+      : String(left[0]).localeCompare(String(right[0]));
+  });
+}
+
+const unusedQuestionIds = questions
+  .map((question) => question.id)
+  .filter((questionId) => !questionUsage.has(questionId))
+  .sort();
+
 console.log("\nResumo");
 console.log("------");
 console.log(`Taxa de sucesso: ${successCount}/${results.length}`);
 console.log(`Média de turnos: ${averageTurns.toFixed(2)}`);
 console.log(`Confiança média: ${(averageConfidence * 100).toFixed(2)}%`);
 console.log(`Respostas unknown: ${totalUnknown}`);
+
+console.log("\nRazões de conclusão");
+console.log("--------------------");
+for (const [reason, count] of sortUsage(readyReasonUsage)) {
+  console.log(`${String(reason).padEnd(24)} ${count}/${results.length}`);
+}
+
+console.log("\nPerguntas iniciais");
+console.log("------------------");
+for (const [questionId, count] of sortUsage(firstQuestionUsage)) {
+  console.log(`${questionId.padEnd(34)} ${count}/${results.length}`);
+}
+
+console.log("\nFrequência das perguntas");
+console.log("------------------------");
+for (const [questionId, count] of sortUsage(questionUsage)) {
+  const percentage = ((count / results.length) * 100).toFixed(0);
+  console.log(
+    `${questionId.padEnd(34)} ${String(count).padStart(2)}/${results.length}  ` +
+    `${percentage.padStart(3)}%`,
+  );
+}
+
+console.log("\nPerguntas nunca utilizadas");
+console.log("--------------------------");
+if (unusedQuestionIds.length === 0) {
+  console.log("Nenhuma.");
+} else {
+  for (const questionId of unusedQuestionIds) console.log(`- ${questionId}`);
+}
+
+console.log("\nPercursos repetidos");
+console.log("-------------------");
+const repeatedPaths = sortUsage(pathUsage).filter(([, count]) => count > 1);
+if (repeatedPaths.length === 0) {
+  console.log("Nenhum percurso completo foi repetido.");
+} else {
+  for (const [path, count] of repeatedPaths) {
+    console.log(`${count}x ${path}`);
+  }
+}
 
 if (successCount !== results.length) {
   process.exitCode = 1;
