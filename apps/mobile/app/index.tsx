@@ -56,27 +56,105 @@ export default function HomeScreen() {
 
   function startGame() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setSession(createGameSession(gamePeople, questions));
+
+    const seed = Date.now();
+    const nextSession = createGameSession(gamePeople, questions, {
+      nearBestRatio: 0.95,
+      questionSelectionSeed: seed,
+    });
+
+    if (__DEV__) {
+      console.log("[MindGuess] Nova partida", {
+        seed,
+        nearBestRatio: nextSession.nearBestRatio,
+        firstQuestionId: nextSession.currentQuestion?.id ?? null,
+        firstQuestion: nextSession.currentQuestion?.canonicalText ?? null,
+        candidateCount: nextSession.candidates.length,
+      });
+    }
+
+    setSession(nextSession);
     setWasCorrect(null);
     setPhase("playing");
   }
 
   function answerQuestion(answer: PlayerAnswer) {
     if (!session || session.status !== "active") return;
+
     void Haptics.selectionAsync();
+
+    const answeredQuestion = session.currentQuestion;
     const updated = answerCurrentQuestion(session, answer);
+    const topCandidate = getRecommendedGuess(updated);
+
+    if (__DEV__) {
+      console.log("[MindGuess] Resposta", {
+        seed: updated.questionSelectionSeed,
+        turn: updated.turn,
+        questionId: answeredQuestion?.id ?? null,
+        question: answeredQuestion?.canonicalText ?? null,
+        answer,
+        topCandidate: topCandidate.person.slug,
+        topCandidateName: topCandidate.person.name,
+        probability: Number(topCandidate.probability.toFixed(6)),
+        status: updated.status,
+        readyReason: updated.readyReason,
+        nextQuestionId: updated.currentQuestion?.id ?? null,
+        nextQuestion: updated.currentQuestion?.canonicalText ?? null,
+      });
+    }
+
     setSession(updated);
-    if (updated.status === "ready_to_guess") setPhase("guess");
+
+    if (updated.status === "ready_to_guess") {
+      if (__DEV__) {
+        console.log("[MindGuess] Pronto para adivinhar", {
+          seed: updated.questionSelectionSeed,
+          turns: updated.turn,
+          readyReason: updated.readyReason,
+          guess: topCandidate.person.slug,
+          guessName: topCandidate.person.name,
+          confidence: Number(topCandidate.probability.toFixed(6)),
+          questionPath: updated.history.map(
+            (turn) => turn.question.id,
+          ),
+          answers: updated.history.map((turn) => turn.answer),
+        });
+      }
+
+      setPhase("guess");
+    }
   }
 
   function confirmGuess(correct: boolean) {
     if (!session || session.status !== "ready_to_guess") return;
+
     void Haptics.notificationAsync(
       correct
         ? Haptics.NotificationFeedbackType.Success
         : Haptics.NotificationFeedbackType.Error,
     );
-    setSession(finalizeGameSession(session));
+
+    const recommendation = getRecommendedGuess(session);
+    const finishedSession = finalizeGameSession(session);
+
+    if (__DEV__) {
+      console.log("[MindGuess] Resultado confirmado", {
+        seed: session.questionSelectionSeed,
+        guess: recommendation.person.slug,
+        guessName: recommendation.person.name,
+        confidence: Number(recommendation.probability.toFixed(6)),
+        correct,
+        turns: session.turn,
+        readyReason: session.readyReason,
+        questionPath: session.history.map(
+          (turn) => turn.question.id,
+        ),
+        answers: session.history.map((turn) => turn.answer),
+      });
+    }
+
+    setSession(finishedSession);
     setWasCorrect(correct);
     setPhase("result");
   }
