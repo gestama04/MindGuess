@@ -207,43 +207,54 @@ export function scoreQuestion(
 ): QuestionScore {
   const normalized = normalizeDistribution(candidates);
   const currentEntropy = calculateEntropy(normalized);
-  const groups = new Map<EvaluationResult, CandidateProbability[]>();
+  const evaluationProbabilities = new Map<EvaluationResult, number>();
 
   for (const candidate of normalized) {
-    const result = evaluateQuestion(candidate.person, question);
-    const group = groups.get(result) ?? [];
-    group.push(candidate);
-    groups.set(result, group);
+    const evaluation = evaluateQuestion(candidate.person, question);
+    evaluationProbabilities.set(
+      evaluation,
+      (evaluationProbabilities.get(evaluation) ?? 0) +
+        candidate.probability,
+    );
   }
 
-  let expectedEntropy = 0;
-  for (const group of groups.values()) {
-    const groupProbability = group.reduce(
-      (sum, candidate) => sum + candidate.probability,
-      0,
-    );
+  const answerForEvaluation: Readonly<
+    Record<EvaluationResult, PlayerAnswer>
+  > = {
+    true: "yes",
+    false: "no",
+    unknown: "unknown",
+  };
 
-    if (groupProbability <= 0) {
+  let expectedEntropy = 0;
+
+  for (const evaluation of EVALUATION_RESULTS) {
+    const evaluationProbability =
+      evaluationProbabilities.get(evaluation) ?? 0;
+
+    if (evaluationProbability <= 0) {
       continue;
     }
 
-    const conditionalDistribution = group.map((candidate) => ({
-      person: candidate.person,
-      probability: candidate.probability / groupProbability,
-    }));
+    const posteriorDistribution = updateDistribution(
+      normalized,
+      question,
+      answerForEvaluation[evaluation],
+    );
 
     expectedEntropy +=
-      groupProbability * calculateEntropy(conditionalDistribution);
+      evaluationProbability *
+      calculateEntropy(posteriorDistribution);
   }
 
   const rawInformationGain = currentEntropy - expectedEntropy;
-  const informationGain = Math.abs(rawInformationGain) < 1e-12
-    ? 0
-    : rawInformationGain;
+  const informationGain =
+    Math.abs(rawInformationGain) < 1e-12
+      ? 0
+      : rawInformationGain;
 
   return { question, informationGain, expectedEntropy };
 }
-
 export function isQuestionAvailable(
   question: Question,
   askedQuestionIds: ReadonlySet<string> = new Set(),

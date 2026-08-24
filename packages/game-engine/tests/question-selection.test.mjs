@@ -4,6 +4,7 @@ import { people, questions } from "@mindguess/game-data";
 import {
   calculateEntropy,
   createUniformDistribution,
+  evaluateQuestion,
   rankQuestions,
   scoreQuestion,
   selectNextQuestion,
@@ -40,6 +41,42 @@ test("uma pergunta útil tem ganho de informação positivo", async () => {
   assert.ok(score.expectedEntropy < Math.log2(data.people.length));
 });
 
+test("a pontuação representa as atualizações reais da partida", async () => {
+  const data = await loadData();
+  const initial = createUniformDistribution(data.people);
+  const question = data.question("guinness-record");
+  const score = scoreQuestion(initial, question);
+
+  const evaluationProbabilities = {
+    true: 0,
+    false: 0,
+    unknown: 0,
+  };
+
+  for (const candidate of initial) {
+    const evaluation = evaluateQuestion(candidate.person, question);
+    evaluationProbabilities[evaluation] += candidate.probability;
+  }
+
+  const afterYes = updateDistribution(initial, question, "yes");
+  const afterNo = updateDistribution(initial, question, "no");
+  const afterUnknown = updateDistribution(initial, question, "unknown");
+
+  const expectedEntropy =
+    evaluationProbabilities.true * calculateEntropy(afterYes) +
+    evaluationProbabilities.false * calculateEntropy(afterNo) +
+    evaluationProbabilities.unknown * calculateEntropy(afterUnknown);
+
+  const expectedInformationGain =
+    calculateEntropy(initial) - expectedEntropy;
+
+  assert.ok(
+    Math.abs(score.expectedEntropy - expectedEntropy) < 1e-12,
+  );
+  assert.ok(
+    Math.abs(score.informationGain - expectedInformationGain) < 1e-12,
+  );
+});
 test("uma pergunta que produz a mesma resposta para todos é ignorada", async () => {
   const data = await loadData();
   const uselessQuestion = {
@@ -74,7 +111,7 @@ test("o ranking é ordenado por ganho de informação decrescente", async () => 
   const ranked = rankQuestions(createUniformDistribution(data.people), data.questions);
   assert.ok(ranked.length > 1);
   for (let index = 1; index < ranked.length; index += 1) {
-    assert.ok(ranked[index - 1].informationGain >= ranked[index].informationGain);
+    assert.ok(ranked[index - 1].informationGain + 1e-12 >= ranked[index].informationGain);
   }
 });
 

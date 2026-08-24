@@ -103,6 +103,20 @@ function sortUsage(usage) {
   });
 }
 
+function countQuestionEvaluations(people, question) {
+  const counts = {
+    true: 0,
+    false: 0,
+    unknown: 0,
+  };
+
+  for (const person of people) {
+    const evaluation = evaluateQuestion(person, question);
+    counts[evaluation] += 1;
+  }
+
+  return counts;
+}
 const initialDistribution = createUniformDistribution(people);
 const initialQuestionRanking = rankQuestions(
   initialDistribution,
@@ -126,7 +140,8 @@ console.log("\nRanking inicial por ganho de informação");
 console.log("----------------------------------------");
 console.log(
   `${"Pergunta".padEnd(34)} ${"Ganho".padStart(10)} ` +
-  `${"Entropia".padStart(10)} ${"Relativo".padStart(10)}`,
+  `${"Entropia".padStart(10)} ${"Relativo".padStart(10)} ` +
+  `${"True".padStart(6)} ${"False".padStart(6)} ${"Unknown".padStart(8)}`,
 );
 
 for (const score of initialQuestionRanking.slice(0, 10)) {
@@ -135,11 +150,18 @@ for (const score of initialQuestionRanking.slice(0, 10)) {
       ? 0
       : (score.informationGain / bestInitialInformationGain) * 100;
 
+  const evaluationCounts = countQuestionEvaluations(
+    people,
+    score.question,
+  );
   console.log(
     `${score.question.id.padEnd(34)} ` +
     `${score.informationGain.toFixed(4).padStart(10)} ` +
     `${score.expectedEntropy.toFixed(4).padStart(10)} ` +
-    `${`${relativePercentage.toFixed(1)}%`.padStart(10)}`,
+    `${`${relativePercentage.toFixed(1)}%`.padStart(10)} ` +
+    `${String(evaluationCounts.true).padStart(6)} ` +
+    `${String(evaluationCounts.false).padStart(6)} ` +
+    `${String(evaluationCounts.unknown).padStart(8)}`,
   );
 }
 console.log("\nRazões de conclusão");
