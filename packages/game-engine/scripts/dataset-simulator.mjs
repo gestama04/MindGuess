@@ -2,9 +2,11 @@ import { people, questions } from "@mindguess/game-data";
 import {
   answerCurrentQuestion,
   createGameSession,
+  createUniformDistribution,
   evaluateQuestion,
   finalizeGameSession,
   getRecommendedGuess,
+  rankQuestions,
 } from "../dist/index.js";
 
 function evaluationToAnswer(evaluation) {
@@ -101,6 +103,13 @@ function sortUsage(usage) {
   });
 }
 
+const initialDistribution = createUniformDistribution(people);
+const initialQuestionRanking = rankQuestions(
+  initialDistribution,
+  questions,
+);
+const bestInitialInformationGain =
+  initialQuestionRanking[0]?.informationGain ?? 0;
 const unusedQuestionIds = questions
   .map((question) => question.id)
   .filter((questionId) => !questionUsage.has(questionId))
@@ -113,6 +122,26 @@ console.log(`Média de turnos: ${averageTurns.toFixed(2)}`);
 console.log(`Confiança média: ${(averageConfidence * 100).toFixed(2)}%`);
 console.log(`Respostas unknown: ${totalUnknown}`);
 
+console.log("\nRanking inicial por ganho de informação");
+console.log("----------------------------------------");
+console.log(
+  `${"Pergunta".padEnd(34)} ${"Ganho".padStart(10)} ` +
+  `${"Entropia".padStart(10)} ${"Relativo".padStart(10)}`,
+);
+
+for (const score of initialQuestionRanking.slice(0, 10)) {
+  const relativePercentage =
+    bestInitialInformationGain === 0
+      ? 0
+      : (score.informationGain / bestInitialInformationGain) * 100;
+
+  console.log(
+    `${score.question.id.padEnd(34)} ` +
+    `${score.informationGain.toFixed(4).padStart(10)} ` +
+    `${score.expectedEntropy.toFixed(4).padStart(10)} ` +
+    `${`${relativePercentage.toFixed(1)}%`.padStart(10)}`,
+  );
+}
 console.log("\nRazões de conclusão");
 console.log("--------------------");
 for (const [reason, count] of sortUsage(readyReasonUsage)) {
