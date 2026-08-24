@@ -20,7 +20,8 @@
     "test": "npm run build && node --test tests/*.test.mjs",
     "demo:probability": "npm run build && node scripts/probability-demo.mjs",
     "demo:game": "npm run build && node scripts/automatic-game-demo.mjs",
-    "simulate:dataset": "npm run build && node scripts/dataset-simulator.mjs"
+    "simulate:dataset": "npm run build && node scripts/dataset-simulator.mjs",
+    "simulate:seeds": "npm run build && node scripts/seed-comparison.mjs"
   },
   "dependencies": {
     "@mindguess/entity-schema": "0.1.0"

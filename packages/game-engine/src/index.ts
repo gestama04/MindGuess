@@ -335,18 +335,34 @@ export function selectNearBestQuestion(
     ] ?? null
   );
 }
+export interface QuestionSelectionOptions {
+  readonly nearBestRatio: number;
+  readonly selectionIndex: number;
+}
+
 export function selectNextQuestion(
   candidates: readonly CandidateProbability[],
   questions: readonly Question[],
   askedQuestionIds: ReadonlySet<string> = new Set(),
   resolvedExclusiveGroups: ReadonlySet<string> = new Set(),
+  selectionOptions?: QuestionSelectionOptions,
 ): QuestionScore | null {
-  return rankQuestions(
+  const rankedQuestions = rankQuestions(
     candidates,
     questions,
     askedQuestionIds,
     resolvedExclusiveGroups,
-  )[0] ?? null;
+  );
+
+  if (selectionOptions === undefined) {
+    return rankedQuestions[0] ?? null;
+  }
+
+  return selectNearBestQuestion(
+    rankedQuestions,
+    selectionOptions.nearBestRatio,
+    selectionOptions.selectionIndex,
+  );
 }
 
 export type GameStatus = "active" | "ready_to_guess" | "finished";
@@ -367,6 +383,15 @@ export interface GameTurn {
 export interface GameSessionOptions {
   readonly guessThreshold?: number;
   readonly maxTurns?: number;
+  readonly nearBestRatio?: number;
+  readonly questionSelectionSeed?: number;
+}
+
+interface ValidatedGameSessionOptions {
+  readonly guessThreshold: number;
+  readonly maxTurns: number;
+  readonly nearBestRatio: number;
+  readonly questionSelectionSeed: number | null;
 }
 
 export interface GameSession {
@@ -381,14 +406,19 @@ export interface GameSession {
   readonly currentQuestion: Question | null;
   readonly guessThreshold: number;
   readonly maxTurns: number;
+  readonly nearBestRatio: number;
+  readonly questionSelectionSeed: number | null;
   readonly finalGuess: CandidateProbability | null;
 }
 
 function validateSessionOptions(
   options: GameSessionOptions,
-): Required<GameSessionOptions> {
+): ValidatedGameSessionOptions {
   const guessThreshold = options.guessThreshold ?? 0.85;
   const maxTurns = options.maxTurns ?? 20;
+  const nearBestRatio = options.nearBestRatio ?? 0.95;
+  const questionSelectionSeed =
+    options.questionSelectionSeed ?? null;
 
   if (
     !Number.isFinite(guessThreshold) ||
@@ -402,9 +432,31 @@ function validateSessionOptions(
     throw new Error("maxTurns tem de ser um inteiro positivo.");
   }
 
-  return { guessThreshold, maxTurns };
-}
+  if (
+    !Number.isFinite(nearBestRatio) ||
+    nearBestRatio <= 0 ||
+    nearBestRatio > 1
+  ) {
+    throw new Error("nearBestRatio tem de estar no intervalo ]0, 1].");
+  }
 
+  if (
+    questionSelectionSeed !== null &&
+    (!Number.isSafeInteger(questionSelectionSeed) ||
+      questionSelectionSeed < 0)
+  ) {
+    throw new Error(
+      "questionSelectionSeed tem de ser um inteiro seguro nao negativo.",
+    );
+  }
+
+  return {
+    guessThreshold,
+    maxTurns,
+    nearBestRatio,
+    questionSelectionSeed,
+  };
+}
 export function createGameSession(
   people: readonly FamousPerson[],
   questions: readonly Question[],
@@ -414,9 +466,25 @@ export function createGameSession(
     throw new Error("Não é possível iniciar uma sessão sem perguntas.");
   }
 
-  const { guessThreshold, maxTurns } = validateSessionOptions(options);
+  const {
+    guessThreshold,
+    maxTurns,
+    nearBestRatio,
+    questionSelectionSeed,
+  } = validateSessionOptions(options);
   const candidates = createUniformDistribution(people);
-  const nextQuestion = selectNextQuestion(candidates, questions);
+  const nextQuestion = selectNextQuestion(
+    candidates,
+    questions,
+    new Set(),
+    new Set(),
+    questionSelectionSeed === null
+      ? undefined
+      : {
+          nearBestRatio,
+          selectionIndex: questionSelectionSeed,
+        },
+  );
 
   return {
     candidates,
@@ -430,6 +498,8 @@ export function createGameSession(
     currentQuestion: nextQuestion?.question ?? null,
     guessThreshold,
     maxTurns,
+    nearBestRatio,
+    questionSelectionSeed,
     finalGuess: null,
   };
 }
@@ -482,6 +552,13 @@ export function answerCurrentQuestion(
         session.questions,
         new Set(askedQuestionIds),
         new Set(resolvedExclusiveGroups),
+        session.questionSelectionSeed === null
+          ? undefined
+          : {
+              nearBestRatio: session.nearBestRatio,
+              selectionIndex:
+                session.questionSelectionSeed + turn,
+            },
       );
   const readyToGuess =
     reachedThreshold || reachedTurnLimit || nextQuestion === null;

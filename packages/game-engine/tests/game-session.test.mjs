@@ -22,6 +22,62 @@ test("cria uma sessão ativa com distribuição uniforme", async () => {
   assert.ok(session.candidates.every((candidate) => Math.abs(candidate.probability - 1 / data.people.length) < 1e-12));
 });
 
+test("sem seed preserva a melhor pergunta deterministica", async () => {
+  const data = await loadData();
+  const first = createGameSession(data.people, data.questions);
+  const second = createGameSession(data.people, data.questions);
+
+  assert.equal(first.currentQuestion.id, "birth-continent-europe");
+  assert.equal(second.currentQuestion.id, first.currentQuestion.id);
+  assert.equal(first.questionSelectionSeed, null);
+  assert.equal(first.nearBestRatio, 0.95);
+});
+
+test("seeds diferentes percorrem perguntas iniciais proximas da melhor", async () => {
+  const data = await loadData();
+  const expectedQuestionIds = [
+    "birth-continent-europe",
+    "famous-2000-2009",
+    "published-books",
+  ];
+
+  for (const [seed, expectedQuestionId] of expectedQuestionIds.entries()) {
+    const session = createGameSession(data.people, data.questions, {
+      questionSelectionSeed: seed,
+      nearBestRatio: 0.95,
+    });
+
+    assert.equal(session.currentQuestion.id, expectedQuestionId);
+    assert.equal(session.questionSelectionSeed, seed);
+    assert.equal(session.nearBestRatio, 0.95);
+  }
+});
+
+test("a mesma seed produz a mesma pergunta inicial", async () => {
+  const data = await loadData();
+  const first = createGameSession(data.people, data.questions, {
+    questionSelectionSeed: 2,
+  });
+  const second = createGameSession(data.people, data.questions, {
+    questionSelectionSeed: 2,
+  });
+
+  assert.equal(first.currentQuestion.id, second.currentQuestion.id);
+});
+
+test("a configuracao de selecao permanece depois de uma resposta", async () => {
+  const data = await loadData();
+  const initial = createGameSession(data.people, data.questions, {
+    questionSelectionSeed: 1,
+    nearBestRatio: 0.95,
+    guessThreshold: 1,
+  });
+  const updated = answerCurrentQuestion(initial, "unknown");
+
+  assert.equal(updated.questionSelectionSeed, 1);
+  assert.equal(updated.nearBestRatio, 0.95);
+  assert.notEqual(updated.currentQuestion?.id, initial.currentQuestion.id);
+});
 test("regista uma resposta no histórico", async () => {
   const data = await loadData();
   const initial = createGameSession(data.people, data.questions);
@@ -107,4 +163,20 @@ test("rejeita configurações e entradas inválidas", async () => {
   assert.throws(() => createGameSession(data.people, []), /sem perguntas/);
   assert.throws(() => createGameSession(data.people, data.questions, { guessThreshold: 0 }), /guessThreshold/);
   assert.throws(() => createGameSession(data.people, data.questions, { maxTurns: 0 }), /maxTurns/);
+  assert.throws(
+    () => createGameSession(data.people, data.questions, { nearBestRatio: 0 }),
+    /nearBestRatio/,
+  );
+  assert.throws(
+    () => createGameSession(data.people, data.questions, { nearBestRatio: 1.01 }),
+    /nearBestRatio/,
+  );
+  assert.throws(
+    () => createGameSession(data.people, data.questions, { questionSelectionSeed: -1 }),
+    /questionSelectionSeed/,
+  );
+  assert.throws(
+    () => createGameSession(data.people, data.questions, { questionSelectionSeed: 1.5 }),
+    /questionSelectionSeed/,
+  );
 });
