@@ -296,6 +296,45 @@ export function rankQuestions(
     });
 }
 
+export function selectNearBestQuestion(
+  rankedQuestions: readonly QuestionScore[],
+  nearBestRatio: number,
+  selectionIndex: number,
+): QuestionScore | null {
+  if (
+    !Number.isFinite(nearBestRatio) ||
+    nearBestRatio <= 0 ||
+    nearBestRatio > 1
+  ) {
+    throw new Error("nearBestRatio tem de estar no intervalo ]0, 1].");
+  }
+
+  if (!Number.isInteger(selectionIndex) || selectionIndex < 0) {
+    throw new Error(
+      "selectionIndex tem de ser um inteiro não negativo.",
+    );
+  }
+
+  const bestQuestion = rankedQuestions[0];
+
+  if (bestQuestion === undefined) {
+    return null;
+  }
+
+  const minimumGain =
+    bestQuestion.informationGain * nearBestRatio;
+
+  const eligibleQuestions = rankedQuestions.filter(
+    (score) =>
+      score.informationGain >= minimumGain - 1e-12,
+  );
+
+  return (
+    eligibleQuestions[
+      selectionIndex % eligibleQuestions.length
+    ] ?? null
+  );
+}
 export function selectNextQuestion(
   candidates: readonly CandidateProbability[],
   questions: readonly Question[],

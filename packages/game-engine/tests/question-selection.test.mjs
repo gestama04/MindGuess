@@ -7,6 +7,7 @@ import {
   evaluateQuestion,
   rankQuestions,
   scoreQuestion,
+  selectNearBestQuestion,
   selectNextQuestion,
   updateDistribution,
 } from "../dist/index.js";
@@ -92,6 +93,67 @@ test("uma pergunta que produz a mesma resposta para todos é ignorada", async ()
   assert.equal(rankQuestions(createUniformDistribution(data.people), [uselessQuestion]).length, 0);
 });
 
+test("a seleção próxima da melhor devolve null para uma lista vazia", () => {
+  assert.equal(selectNearBestQuestion([], 0.95, 0), null);
+});
+
+test("a seleção próxima da melhor escolhe a melhor sem índice variável", async () => {
+  const data = await loadData();
+  const ranked = rankQuestions(
+    createUniformDistribution(data.people),
+    data.questions,
+  );
+
+  const selected = selectNearBestQuestion(ranked, 0.95, 0);
+
+  assert.notEqual(selected, null);
+  assert.equal(selected.question.id, ranked[0].question.id);
+});
+
+test("índices diferentes percorrem apenas perguntas próximas da melhor", async () => {
+  const data = await loadData();
+  const ranked = rankQuestions(
+    createUniformDistribution(data.people),
+    data.questions,
+  );
+  const bestGain = ranked[0].informationGain;
+  const eligible = ranked.filter(
+    (score) => score.informationGain >= bestGain * 0.95 - 1e-12,
+  );
+
+  assert.ok(eligible.length >= 3);
+
+  for (let index = 0; index < eligible.length * 2; index += 1) {
+    const selected = selectNearBestQuestion(ranked, 0.95, index);
+    assert.notEqual(selected, null);
+    assert.equal(
+      selected.question.id,
+      eligible[index % eligible.length].question.id,
+    );
+  }
+});
+
+test("a seleção próxima da melhor nunca escolhe abaixo do limiar", async () => {
+  const data = await loadData();
+  const ranked = rankQuestions(
+    createUniformDistribution(data.people),
+    data.questions,
+  );
+  const bestGain = ranked[0].informationGain;
+  const eligibleIds = new Set(
+    ranked
+      .filter(
+        (score) => score.informationGain >= bestGain * 0.95 - 1e-12,
+      )
+      .map((score) => score.question.id),
+  );
+
+  for (let index = 0; index < 100; index += 1) {
+    const selected = selectNearBestQuestion(ranked, 0.95, index);
+    assert.notEqual(selected, null);
+    assert.equal(eligibleIds.has(selected.question.id), true);
+  }
+});
 test("perguntas já feitas não voltam a ser selecionadas", async () => {
   const data = await loadData();
   const initial = createUniformDistribution(data.people);
