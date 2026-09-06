@@ -1,60 +1,92 @@
-﻿# MindGuess
+# MindGuess
 
-MindGuess e um jogo de deducao que tenta identificar uma pessoa famosa pensada pelo jogador.
+MindGuess is a mobile guessing game powered by a custom local probabilistic inference engine.
 
-O produto utiliza um motor matematico proprio para selecionar perguntas, atualizar probabilidades e calcular confianca.
+The game attempts to identify the public figure the player is thinking of by selecting useful questions, updating candidate probabilities, and determining when there is enough confidence to present a guess.
 
-A inteligencia artificial e utilizada apenas para personalidade e apresentacao.
+Unlike approaches that depend on a generative AI model for every question, the main MindGuess game engine runs locally and remains deterministic, testable, and available without an AI request.
 
-## Estado
+---
 
-Projeto em desenvolvimento.
+## Current Status
 
-Fase atual:
+MindGuess is in active development.
 
-- arquitetura;
-- esquema de entidades;
-- Game Engine;
-- Simulator.
+The current implementation includes:
 
-A aplicacao mobile sera criada depois de o Game Engine funcionar e ser testado no terminal.
+- A functional React Native mobile application
+- A local probabilistic inference engine
+- Structured and validated public-figure data
+- Automated dataset simulations
+- Reproducible question variation
+- Development diagnostics
+- Automated testing
 
-## Principios principais
+Current evaluated results:
 
-- o Game Engine controla o jogo;
-- o LLM nao toma decisoes;
-- a confianca e real;
-- o jogo funciona sem IA;
-- os dados seguem um esquema versionado;
-- o MVP mantem um ambito reduzido.
+- 10 public figures
+- 33 structured questions
+- 75 automated tests
+- 100% identification across the current dataset
+- Multiple reproducible question-selection seeds
+- Successful Android testing through Expo Go
 
-## Estrutura
+---
 
-A pasta data contem os dados iniciais do jogo.
+## How the Game Engine Works
 
-A pasta docs contem a arquitetura e as decisoes do projeto.
+MindGuess maintains a probability distribution across all available candidates.
 
-O package entity-schema contem o esquema e a validacao das entidades.
+After each player answer, the engine:
 
-O package game-engine contem o motor de decisao.
+1. Evaluates how each candidate relates to the current question.
+2. Applies answer-dependent likelihood weights.
+3. Normalizes the candidate probability distribution.
+4. Ranks the remaining candidates.
+5. Calculates the expected entropy of available questions.
+6. Selects a question with high expected information gain.
+7. Ends the game when the configured confidence or turn limit is reached.
 
-O package personality contem os templates locais e a futura integracao com o LLM.
+Supported answers:
 
-O package shared-types contem os tipos partilhados.
+- Yes
+- No
+- Maybe
+- I don't know
 
-O package simulator contem as simulacoes automaticas.
+---
 
-## MVP
+## Question Selection
 
-- Pessoas Famosas;
-- aproximadamente 100 entidades;
-- aproximadamente 30 atributos;
-- respostas Sim, Nao, Talvez e Nao sei;
-- Game Engine em TypeScript;
-- Simulator;
-- personalidade sarcastica;
-- aplicacao React Native com Expo;
-- Supabase;
-- partilha do resultado.
+Questions are ranked using entropy and expected information gain.
 
-Consultar docs/ARCHITECTURE.md antes de alterar a arquitetura.
+The engine can select between questions that are close to the highest-ranked option using a configurable near-best ratio.
+
+Question variation is controlled through reproducible numeric seeds.
+
+This provides:
+
+- Different question sequences between games
+- Deterministic automated tests
+- Reproducible bug reports
+- Protection against selecting significantly weaker questions
+
+---
+
+## Architecture
+
+MindGuess is organized as a TypeScript monorepo using npm Workspaces.
+
+```text
+apps/
+  mobile/
+
+data/
+  people/
+  tests/
+
+packages/
+  entity-schema/
+  game-data/
+  game-engine/
+  shared-types/
