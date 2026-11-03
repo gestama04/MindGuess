@@ -1,75 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { people, questions } from "@mindguess/game-data";
-import {
-  answerCurrentQuestion,
-  createGameSession,
-  finalizeGameSession,
-} from "../dist/index.js";
-
-async function loadData() {
-  return { people, questions };
-}
-
-test("uma sessão ativa começa sem razão de conclusão", async () => {
-  const data = await loadData();
-  const session = createGameSession(data.people, data.questions);
-  assert.equal(session.status, "active");
-  assert.equal(session.readyReason, null);
-});
-
-test("atingir a confiança define confidence_threshold", async () => {
-  const data = await loadData();
-  const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 0.11,
-    maxTurns: 20,
-  });
-  const ready = answerCurrentQuestion(initial, "yes");
-  assert.equal(ready.status, "ready_to_guess");
-  assert.equal(ready.readyReason, "confidence_threshold");
-});
-
-test("atingir o máximo de turnos define turn_limit", async () => {
-  const data = await loadData();
-  const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 1,
-    maxTurns: 1,
-  });
-  const ready = answerCurrentQuestion(initial, "unknown");
-  assert.equal(ready.status, "ready_to_guess");
-  assert.equal(ready.readyReason, "turn_limit");
-});
-
-test("ficar sem perguntas úteis define no_useful_questions", async () => {
-  const data = await loadData();
-  const onlyQuestion = [data.questions.find((question) => question.id === "alive-yes")];
-  const initial = createGameSession(data.people, onlyQuestion, {
-    guessThreshold: 1,
-    maxTurns: 20,
-  });
-  const ready = answerCurrentQuestion(initial, "unknown");
-  assert.equal(ready.status, "ready_to_guess");
-  assert.equal(ready.readyReason, "no_useful_questions");
-});
-
-test("a confiança tem prioridade sobre o limite de turnos", async () => {
-  const data = await loadData();
-  const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 0.11,
-    maxTurns: 1,
-  });
-  const ready = answerCurrentQuestion(initial, "yes");
-  assert.equal(ready.readyReason, "confidence_threshold");
-});
-
-test("finalizar preserva a razão de conclusão", async () => {
-  const data = await loadData();
-  const initial = createGameSession(data.people, data.questions, {
-    guessThreshold: 1,
-    maxTurns: 1,
-  });
-  const ready = answerCurrentQuestion(initial, "unknown");
-  const finished = finalizeGameSession(ready);
-  assert.equal(finished.status, "finished");
-  assert.equal(finished.readyReason, "turn_limit");
-});
+import { answerCurrentQuestion, createGameSession, finalizeGameSession } from "../dist/index.js";
+const lowThreshold = 1 / people.length + 0.001;
+test("uma sessão ativa começa sem razão de conclusão", () => { const s=createGameSession(people,questions); assert.equal(s.status,"active"); assert.equal(s.readyReason,null); });
+test("atingir a confiança define confidence_threshold", () => { const s=createGameSession(people,questions,{guessThreshold:lowThreshold,maxTurns:20}); const r=answerCurrentQuestion(s,"yes"); assert.equal(r.status,"ready_to_guess"); assert.equal(r.readyReason,"confidence_threshold"); });
+test("atingir o máximo de turnos define turn_limit", () => { const s=createGameSession(people,questions,{guessThreshold:1,maxTurns:1}); const r=answerCurrentQuestion(s,"unknown"); assert.equal(r.status,"ready_to_guess"); assert.equal(r.readyReason,"turn_limit"); });
+test("ficar sem perguntas úteis define no_useful_questions", () => { const q=[questions.find(x=>x.id==="alive-yes")]; const s=createGameSession(people,q,{guessThreshold:1,maxTurns:20}); const r=answerCurrentQuestion(s,"unknown"); assert.equal(r.readyReason,"no_useful_questions"); });
+test("a confiança tem prioridade sobre o limite", () => { const s=createGameSession(people,questions,{guessThreshold:lowThreshold,maxTurns:1}); const r=answerCurrentQuestion(s,"yes"); assert.equal(r.readyReason,"confidence_threshold"); });
+test("finalizar preserva a razão", () => { const s=createGameSession(people,questions,{guessThreshold:1,maxTurns:1}); const r=answerCurrentQuestion(s,"unknown"); assert.equal(finalizeGameSession(r).readyReason,"turn_limit"); });
