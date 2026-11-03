@@ -54,3 +54,7 @@ desktop.ini
 *.tmp
 *.temp
 .cache/
+
+# Repomix generated files
+*repomix*.md
+mindguess-completo*.md

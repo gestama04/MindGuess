@@ -207,8 +207,15 @@ export default function HomeScreen() {
               <Feature icon="flash-outline" label="Perguntas adaptativas" />
               <Feature icon="shield-checkmark-outline" label="Sem conta necessária" />
             </View>
-            <PrimaryButton label="Começar jogo" icon="arrow-forward" onPress={startGame} />
-            <Text style={styles.hint}>Protótipo inicial · 5 pessoas no dataset</Text>
+            <PrimaryButton
+              label="Começar jogo"
+              icon="arrow-forward"
+              onPress={startGame}
+            />
+
+            <Text style={styles.hint}>
+              Protótipo inicial · {gamePeople.length} pessoas no dataset
+            </Text>
           </View>
         )}
 
