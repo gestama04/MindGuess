@@ -22,6 +22,18 @@ The current implementation includes:
 - Development diagnostics
 - Automated testing
 
+The current dataset contains 34 validated public figures and the mobile app
+uses the game engine directly.
+
+The mobile experience includes two modes:
+
+- **Classic**: the engine tries to identify the person;
+- **Fool Me**: the player answers ambiguously and tries to escape the guess.
+
+Results show the engine's calculated confidence, the number of questions, and
+a native share message. Fool Me never invents lie-detection metrics: it only
+reports observable facts from the game.
+
 Current evaluated results:
 
 - 10 public figures
