@@ -1,4 +1,7 @@
-import { FamousPersonSchema } from "@mindguess/entity-schema";
+import {
+  FamousPersonSchema,
+  type PersonAttributes,
+} from "@mindguess/entity-schema";
 
 const RAW_PEOPLE = [
 {
@@ -1666,6 +1669,181 @@ const RAW_PEOPLE = [
 }
 ] as const;
 
+export const ADDITIONAL_PERSON_DEFAULTS: PersonAttributes = {
+  alive: true,
+  gender: null,
+  birthCountry: null,
+  nationalities: ["other"],
+  primaryLanguage: "other",
+  publicArea: "other",
+  primaryProfession: "other",
+  professions: ["other"],
+  becameFamousPeriod: "2000_2009",
+  primarilyKnownInternationally: true,
+  associatedCountries: ["other"],
+  hasActedInFilmOrTelevision: false,
+  hasReleasedMusic: false,
+  hasPresentedTelevision: false,
+  createsOnlineContent: false,
+  hasPublishedBooks: false,
+  sport: null,
+  representedNationalTeam: false,
+  heldPoliticalOffice: false,
+  foundedOrLedMajorCompany: false,
+  workedInScienceOrAcademia: false,
+  wonMajorInternationalAward: false,
+  wonOlympicMedal: false,
+  wonWorldChampionship: false,
+  hasGuinnessRecognizedRecord: null,
+  tags: [],
+};
+
+function createAdditionalPerson(input: {
+  id: string;
+  name: string;
+  slug: string;
+  attributes: Partial<PersonAttributes>;
+}) {
+  return {
+    id: input.id,
+    name: input.name,
+    slug: input.slug,
+    category: "famous_person" as const,
+    status: "production" as const,
+    schemaVersion: 1 as const,
+    aliases: [],
+    attributes: {
+      ...ADDITIONAL_PERSON_DEFAULTS,
+      ...input.attributes,
+    },
+    createdAt: "2026-11-12T00:00:00.000Z",
+    updatedAt: "2026-11-12T00:00:00.000Z",
+  };
+}
+
+const ADDITIONAL_PEOPLE = [
+  createAdditionalPerson({
+    id: "d3f0b5b7-4e74-5afc-b2b4-9f2b1f6b6e01",
+    name: "Michael Jordan",
+    slug: "michael-jordan",
+    attributes: {
+      gender: "male",
+      birthCountry: "united_states",
+      nationalities: ["united_states"],
+      primaryLanguage: "english",
+      publicArea: "sports",
+      primaryProfession: "athlete",
+      professions: ["athlete"],
+      becameFamousPeriod: "1980_1999",
+      associatedCountries: ["united_states"],
+      sport: "basketball",
+      representedNationalTeam: true,
+      wonMajorInternationalAward: true,
+      wonOlympicMedal: true,
+      wonWorldChampionship: true,
+    },
+  }),
+  createAdditionalPerson({
+    id: "4f4ce1e2-6880-5d19-8f4e-6b3be5b9e002",
+    name: "Usain Bolt",
+    slug: "usain-bolt",
+    attributes: {
+      gender: "male",
+      birthCountry: "jamaica",
+      nationalities: ["jamaica"],
+      primaryLanguage: "english",
+      publicArea: "sports",
+      primaryProfession: "athlete",
+      professions: ["athlete"],
+      becameFamousPeriod: "2000_2009",
+      associatedCountries: ["jamaica", "united_kingdom"],
+      sport: "athletics",
+      representedNationalTeam: true,
+      wonMajorInternationalAward: true,
+      wonOlympicMedal: true,
+      wonWorldChampionship: true,
+      tags: ["olympic_champion"],
+    },
+  }),
+  createAdditionalPerson({
+    id: "c1bafc34-6eb5-5f6e-9f7a-7b6f87f7e003",
+    name: "Shah Rukh Khan",
+    slug: "shah-rukh-khan",
+    attributes: {
+      gender: "male",
+      birthCountry: "india",
+      nationalities: ["india"],
+      primaryLanguage: "hindi",
+      publicArea: "acting",
+      primaryProfession: "actor",
+      professions: ["actor"],
+      becameFamousPeriod: "1980_1999",
+      associatedCountries: ["india"],
+      hasActedInFilmOrTelevision: true,
+      wonMajorInternationalAward: true,
+      tags: ["action_actor"],
+    },
+  }),
+  createAdditionalPerson({
+    id: "f6b9b93d-3b39-50ee-ae41-9b8c2f6c2004",
+    name: "Nelson Mandela",
+    slug: "nelson-mandela",
+    attributes: {
+      alive: false,
+      gender: "male",
+      birthCountry: "south_africa",
+      nationalities: ["south_africa"],
+      primaryLanguage: "other",
+      publicArea: "politics",
+      primaryProfession: "politician",
+      professions: ["politician", "writer"],
+      becameFamousPeriod: "1950_1979",
+      associatedCountries: ["south_africa"],
+      hasPublishedBooks: true,
+      heldPoliticalOffice: true,
+      wonMajorInternationalAward: true,
+    },
+  }),
+  createAdditionalPerson({
+    id: "88e2b9cb-7a8a-5ec8-bf3d-1c9a7e9d5005",
+    name: "Hayao Miyazaki",
+    slug: "hayao-miyazaki",
+    attributes: {
+      gender: "male",
+      birthCountry: "japan",
+      nationalities: ["japan"],
+      primaryLanguage: "japanese",
+      publicArea: "acting",
+      primaryProfession: "director",
+      professions: ["director", "writer"],
+      becameFamousPeriod: "1980_1999",
+      associatedCountries: ["japan"],
+      hasPublishedBooks: true,
+      wonMajorInternationalAward: true,
+      tags: ["film_director", "fantasy_writer"],
+    },
+  }),
+  createAdditionalPerson({
+    id: "a7d2c9e6-9e40-5f4b-8a11-2c3d6e7f6006",
+    name: "Priyanka Chopra Jonas",
+    slug: "priyanka-chopra-jonas",
+    attributes: {
+      gender: "female",
+      birthCountry: "india",
+      nationalities: ["india"],
+      primaryLanguage: "hindi",
+      publicArea: "acting",
+      primaryProfession: "actor",
+      professions: ["actor", "singer"],
+      becameFamousPeriod: "2000_2009",
+      associatedCountries: ["india", "united_states"],
+      hasActedInFilmOrTelevision: true,
+      hasReleasedMusic: true,
+      wonMajorInternationalAward: true,
+    },
+  }),
+] as const;
+
 export const questions = [
   {
     "id": "alive-yes",
@@ -2138,6 +2316,8 @@ export const questions = [
     "canonicalText": "Esta pessoa participou no filme Titanic?"
   }
 ] as const;
-export const people = RAW_PEOPLE.map((person) => FamousPersonSchema.parse(person));
+export const people = [...RAW_PEOPLE, ...ADDITIONAL_PEOPLE].map((person) =>
+  FamousPersonSchema.parse(person),
+);
 export type GamePerson = (typeof people)[number];
 export type GameQuestion = (typeof questions)[number];
